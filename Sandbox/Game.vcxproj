@@ -26,8 +26,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
+    <ClInclude Include="CommandIDs.h" />
     <ClInclude Include="GameState.h" />
     <ClInclude Include="MenuState.h" />
+    <ClInclude Include="ResourceIDs.h" />
     <ClInclude Include="States.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

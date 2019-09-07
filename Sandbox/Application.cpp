@@ -1,7 +1,7 @@
 #include "Application.h"
 #include "States.h"
 #include "MenuState.h"
-
+#include "GameState.h"
 #include <SFML/Window/Event.hpp>
 
 Application::Application()
@@ -32,7 +32,8 @@ void Application::draw()
 
 void Application::registerStates()
 {
-	mStateStack.registerState<MENU>(States::MENU);
+	mStateStack.registerState<MenuState>(States::MENU);
+	mStateStack.registerState<GameState>(States::GAME);
 #ifdef XY_DEBUG
 	//mStateStack.pushState(States::MENU);
 #endif // XY_DEBUG
@@ -43,6 +44,8 @@ void Application::registerStates()
 bool Application::initialise()
 {
 	registerStates();
+
+	getRenderWindow()->setView(mStateStack.updateView());
 
 	setWindowTitle("Bladescape");
 

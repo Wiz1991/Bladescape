@@ -25,6 +25,9 @@
     <Filter Include="Source Files\core\states">
       <UniqueIdentifier>{a51b44bc-8adc-4a65-ab30-2cf93872be02}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\core\input">
+      <UniqueIdentifier>{623f2351-906d-4f2c-adc2-cd916284fdb5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -52,6 +55,12 @@
     </ClInclude>
     <ClInclude Include="MenuState.h">
       <Filter>Header Files\core\states</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandIDs.h">
+      <Filter>Header Files\core\input</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceIDs.h">
+      <Filter>Header Files\core</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

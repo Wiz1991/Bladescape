@@ -1,6 +1,7 @@
 #pragma once
 #include <xyginext/core/State.hpp>
-
+#include <xyginext/ecs/Scene.hpp>
+#include <xyginext/resources/ResourceHandler.hpp>
 class GameState final : public xy::State
 {
 public:
@@ -13,8 +14,11 @@ public:
 	void draw();
 
 	void initialiseScene();
+	void loadResources();
 
 	xy::StateID stateID()const override;
 
 private:
+	xy::Scene mGameScene;
+	xy::ResourceHandler mResources;
 };

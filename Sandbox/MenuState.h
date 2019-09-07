@@ -1,9 +1,9 @@
 #pragma once
 #include <xyginext/core/State.hpp>
 #include <xyginext/ecs/Scene.hpp>
+#include <xyginext/resources/ResourceHandler.hpp>
 
 #include <SFML/Graphics/Font.hpp>
-
 class MenuState final : public xy::State
 {
 public:
@@ -16,10 +16,11 @@ public:
 	void draw();
 
 	void initialiseScene();
+	void loadResources();
 
 	xy::StateID stateID()const override;
 
 private:
 	xy::Scene mScene;
-	sf::Font mFont;
+	xy::ResourceHandler mResources;
 };
