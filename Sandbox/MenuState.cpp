@@ -13,6 +13,8 @@
 #include <xyginext/ecs/systems/TextSystem.hpp>
 #include <xyginext/ecs/systems/UISystem.hpp>
 
+#include <SFML/Window/Event.hpp>
+
 MenuState::MenuState(xy::StateStack& stack, xy::State::Context context)
 	: xy::State(stack, context)
 	, mScene(context.appInstance.getMessageBus())

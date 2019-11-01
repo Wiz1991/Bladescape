@@ -1,6 +1,7 @@
 #include "Application.h"
 #include "States.h"
 #include "MenuState.h"
+#include "PauseState.h"
 #include "GameState.h"
 #include <SFML/Window/Event.hpp>
 
@@ -34,6 +35,7 @@ void Application::registerStates()
 {
 	mStateStack.registerState<MenuState>(States::MENU);
 	mStateStack.registerState<GameState>(States::GAME);
+	mStateStack.registerState<PauseState>(States::PAUSE);
 #ifdef XY_DEBUG
 	//mStateStack.pushState(States::MENU);
 #endif // XY_DEBUG

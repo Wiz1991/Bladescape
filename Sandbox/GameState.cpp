@@ -51,6 +51,9 @@ bool GameState::handleEvent(const sf::Event& evt)
 		};
 		mGameScene.getSystem<xy::CommandSystem>().sendCommand(cmd);
 	}
+	if (evt.type == sf::Event::KeyReleased && evt.key.code == sf::Keyboard::Escape)
+		requestStackPush(States::PAUSE);
+
 	mGameScene.forwardEvent(evt);
 	return true;
 }
@@ -76,6 +79,7 @@ void GameState::draw()
 void GameState::initialiseScene()
 {
 	auto& msgBus = getContext().appInstance.getMessageBus();
+	getContext().appInstance.getRenderWindow()->setMouseCursorGrabbed(true);
 
 	mGameScene.addSystem<xy::CommandSystem>(msgBus);
 	mGameScene.addSystem<xy::SpriteSystem>(msgBus);

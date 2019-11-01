@@ -42,6 +42,9 @@
     <ClCompile Include="GameState.cpp">
       <Filter>Source Files\core\states</Filter>
     </ClCompile>
+    <ClCompile Include="PauseState.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h">
@@ -61,6 +64,9 @@
     </ClInclude>
     <ClInclude Include="ResourceIDs.h">
       <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="PauseState.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

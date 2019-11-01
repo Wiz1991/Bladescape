@@ -6,6 +6,7 @@ namespace States {
 		INTRO,
 		MENU,
 		GAME,
+		PAUSE,
 		GAME_OVER,
 		SETTINGS
 	};
