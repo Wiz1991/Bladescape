@@ -101,7 +101,7 @@ void MenuState::initialiseScene()
 
 void MenuState::loadResources()
 {
-	FontID::handles[FontID::Main] = mResources.load<sf::Font>("main.ttf");
+	FontID::handles[FontID::Main] = mResources.load<sf::Font>("assets/main.ttf");
 }
 
 xy::StateID MenuState::stateID() const

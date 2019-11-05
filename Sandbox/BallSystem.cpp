@@ -25,7 +25,7 @@ void BallSystem::process(float dT)
 
 			auto bounds = sf::FloatRect(sf::Vector2f(0, 0), xy::DefaultSceneSize);
 			if (!bounds.contains(tX.getPosition())) {
-				getScene()->destroyEntity(entity)
+				getScene()->destroyEntity(entity);
 			}
 		}
 		}
