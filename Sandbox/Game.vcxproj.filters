@@ -28,6 +28,12 @@
     <Filter Include="Header Files\core\input">
       <UniqueIdentifier>{623f2351-906d-4f2c-adc2-cd916284fdb5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\ecs">
+      <UniqueIdentifier>{aa8812fa-35ec-477e-98e5-9ff4fb3feb19}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ecs">
+      <UniqueIdentifier>{e79a05f0-b511-435c-a7c9-4086afeaf75e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -44,6 +50,9 @@
     </ClCompile>
     <ClCompile Include="PauseState.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BallSystem.cpp">
+      <Filter>Source Files\ecs</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -67,6 +76,9 @@
     </ClInclude>
     <ClInclude Include="PauseState.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BallSystem.h">
+      <Filter>Header Files\ecs</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

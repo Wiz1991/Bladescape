@@ -19,6 +19,9 @@ public:
 	xy::StateID stateID()const override;
 
 private:
+	void spawnBall();
+
+private:
 	xy::Scene mGameScene;
 	xy::ResourceHandler mResources;
 };
