@@ -19,11 +19,11 @@ MenuState::MenuState(xy::StateStack& stack, xy::State::Context context)
 	: xy::State(stack, context)
 	, mScene(context.appInstance.getMessageBus())
 {
+	mScene.getActiveCamera().getComponent<xy::Camera>().setView(context.defaultView.getSize());
+	mScene.getActiveCamera().getComponent<xy::Camera>().setViewport(context.defaultView.getViewport());
 	loadResources();
 	initialiseScene();
 
-	mScene.getActiveCamera().getComponent<xy::Camera>().setView(context.defaultView.getSize());
-	mScene.getActiveCamera().getComponent<xy::Camera>().setViewport(context.defaultView.getViewport());
 }
 
 bool MenuState::handleEvent(const sf::Event& evt)

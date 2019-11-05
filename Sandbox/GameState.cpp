@@ -24,11 +24,12 @@ GameState::GameState(xy::StateStack& stack, xy::State::Context context)
 	: xy::State(stack, context)
 	, mGameScene(context.appInstance.getMessageBus())
 {
+	mGameScene.getActiveCamera().getComponent<xy::Camera>().setView(context.defaultView.getSize());
+	mGameScene.getActiveCamera().getComponent<xy::Camera>().setViewport(context.defaultView.getViewport());
 	loadResources();
 	initialiseScene();
 
-	mGameScene.getActiveCamera().getComponent<xy::Camera>().setView(context.defaultView.getSize());
-	mGameScene.getActiveCamera().getComponent<xy::Camera>().setViewport(context.defaultView.getViewport());
+
 
 	context.appInstance.setMouseCursorVisible(false);
 }
