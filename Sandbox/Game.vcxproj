@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="BallSystem.cpp" />
+    <ClCompile Include="CollisionSystem.cpp" />
     <ClCompile Include="GameState.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MenuState.cpp" />
@@ -29,6 +30,7 @@
   <ItemGroup>
     <ClInclude Include="Application.h" />
     <ClInclude Include="BallSystem.h" />
+    <ClInclude Include="CollisionSystem.h" />
     <ClInclude Include="CommandIDs.h" />
     <ClInclude Include="GameState.h" />
     <ClInclude Include="MenuState.h" />

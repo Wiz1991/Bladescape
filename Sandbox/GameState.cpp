@@ -8,12 +8,16 @@
 #include <xyginext/ecs/components/Sprite.hpp>
 #include <xyginext/ecs/components/Transform.hpp>
 #include <xyginext/ecs/components/CommandTarget.hpp>
+#include <xyginext/ecs/components/BroadPhaseComponent.hpp>
+
 
 //systems
 #include <xyginext/ecs/systems/RenderSystem.hpp>
 #include <xyginext/ecs/systems/SpriteSystem.hpp>
 #include <xyginext/ecs/systems/CommandSystem.hpp>
 #include "BallSystem.h"
+#include <xyginext/ecs/systems/DynamicTreeSystem.hpp>
+
 
 //SFML
 #include <SFML/Window/Event.hpp>
