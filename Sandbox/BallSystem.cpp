@@ -1,6 +1,7 @@
 #include "BallSystem.h"
 #include <xyginext/ecs/components/Transform.hpp>
 #include <xyginext/ecs/Scene.hpp>
+#include "MessageIDs.h"
 BallSystem::BallSystem(xy::MessageBus& msgBus) :
 	xy::System(msgBus, typeid(BallSystem))
 {
@@ -11,7 +12,8 @@ BallSystem::BallSystem(xy::MessageBus& msgBus) :
 void BallSystem::process(float dT)
 {
 	auto& entities = getEntities();
-	for (auto entity : entities) {
+	for (auto entity : entities)
+	{
 		auto& ball = entity.getComponent<Ball>();
 		switch (ball.state)
 		{
@@ -20,14 +22,20 @@ void BallSystem::process(float dT)
 			break;
 		case Ball::State::Active:
 		{
-			auto& tX = entity.getComponent<xy::Transform>();
-			tX.move(ball.velocity * Ball::speed * dT);
+			auto& tx = entity.getComponent<xy::Transform>();
+			tx.move(ball.velocity * Ball::speed * dT);
 
-			auto bounds = sf::FloatRect(sf::Vector2f(0, 0), xy::DefaultSceneSize);
-			if (!bounds.contains(tX.getPosition())) {
+			sf::FloatRect bounds(sf::Vector2f(), xy::DefaultSceneSize);
+			if (!bounds.contains(tx.getPosition()))
+			{
 				getScene()->destroyEntity(entity);
+
+				auto* msg = postMessage<BallEvent>(MessageID::BallMessage);
+				msg->action = BallEvent::Despawned;
+				msg->position = tx.getPosition();
 			}
 		}
+		break;
 		}
 	}
 }

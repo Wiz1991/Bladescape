@@ -34,8 +34,10 @@
     <ClInclude Include="CommandIDs.h" />
     <ClInclude Include="GameState.h" />
     <ClInclude Include="MenuState.h" />
+    <ClInclude Include="MessageIDs.h" />
     <ClInclude Include="PauseState.h" />
     <ClInclude Include="ResourceIDs.h" />
+    <ClInclude Include="ShapeUtils.hpp" />
     <ClInclude Include="States.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

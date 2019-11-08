@@ -17,5 +17,5 @@ class BallSystem final : public xy::System
 {
 public:
 	explicit BallSystem(xy::MessageBus& msgBus);
-	void process(float dT);
+	void process(float);
 };

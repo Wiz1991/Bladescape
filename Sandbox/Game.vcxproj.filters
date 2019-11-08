@@ -34,6 +34,9 @@
     <Filter Include="Header Files\ecs">
       <UniqueIdentifier>{e79a05f0-b511-435c-a7c9-4086afeaf75e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\utils">
+      <UniqueIdentifier>{d750a448-7181-487a-978f-5d7f2db67cb3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -85,6 +88,12 @@
     </ClInclude>
     <ClInclude Include="CollisionSystem.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ShapeUtils.hpp">
+      <Filter>Header Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="MessageIDs.h">
+      <Filter>Header Files\core</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

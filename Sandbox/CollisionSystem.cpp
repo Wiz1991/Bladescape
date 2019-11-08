@@ -5,17 +5,19 @@
 #include <xyginext/ecs/systems/DynamicTreeSystem.hpp>
 
 CollisionSystem::CollisionSystem(xy::MessageBus& bus) :
-	xy::System(bus,typeid(CollisionSystem))
+	xy::System(bus, typeid(CollisionSystem))
 {
 	requireComponent<xy::Transform>();
 	requireComponent<xy::BroadphaseComponent>();
 	requireComponent<Collider>();
 }
 
-void CollisionSystem::process(float dT)
+void CollisionSystem::process(float)
 {
-	broadPhase();
+	mCollisions.clear();
 
+	broadPhase();
+	narrowPhase();
 }
 
 void CollisionSystem::broadPhase()
@@ -24,8 +26,7 @@ void CollisionSystem::broadPhase()
 	for (auto entity : entities) {
 		auto& collider = entity.getComponent<Collider>();
 		if (collider.dynamic) {
-			auto& broadphase = entity.getComponent<xy::BroadphaseComponent>();
-			auto bounds = broadphase.getArea();
+			auto bounds = entity.getComponent<xy::Transform>().getTransform().transformRect(entity.getComponent<xy::BroadphaseComponent>().getArea());
 			auto others = getScene()->getSystem<xy::DynamicTreeSystem>().query(bounds);
 			for (auto other : others) {
 				if (other != entity) {
@@ -37,50 +38,66 @@ void CollisionSystem::broadPhase()
 					}
 				}
 			}
-
 		}
 	}
 }
 
 void CollisionSystem::narrowPhase()
 {
-	for (auto& c : mCollisions) {
-		auto& entA = c.first;
-		auto& entB = c.second;
+	for (auto& c : mCollisions)
+	{
+		auto itemA = c.first;
+		auto itemB = c.second;
 
-		auto& txA = entA.getComponent<xy::Transform>();
-		auto& txB = entB.getComponent<xy::Transform>();
+		auto& txA = itemA.getComponent<xy::Transform>();
+		auto& txB = itemB.getComponent<xy::Transform>();
 
-		auto boundsA = txA.getTransform().transformRect(
-		entA.getComponent<xy::BroadphaseComponent>().getArea()
-		);
-		auto boundsB = txB.getTransform().transformRect(
-			entB.getComponent<xy::BroadphaseComponent>().getArea()
-		);
+		const auto& collisionA = itemA.getComponent<Collider>();
+		const auto& collisionB = itemB.getComponent<Collider>();
+
+		//manifold calculation
+		auto boundsA = txA.getTransform().transformRect(itemA.getComponent<xy::BroadphaseComponent>().getArea());
+		auto boundsB = txB.getTransform().transformRect(itemB.getComponent<xy::BroadphaseComponent>().getArea());
+
 		sf::FloatRect intersection;
 		boundsA.intersects(boundsB, intersection);
 
-		sf::Vector2f normal = txB.getPosition() - txB.getPosition();
+		sf::Vector2f normal = txB.getPosition() - txA.getPosition();
+
 		Manifold manifold;
-		if (intersection.width < intersection.height) {
-			manifold.normal.x = (normal.x < 0) ? 1 : -1;
+		if (intersection.width < intersection.height)
+		{
+			manifold.normal.x = (normal.x < 0) ? 1.f : -1.f;
 			manifold.penetration = intersection.width;
 		}
-		else {
-			manifold.normal.y = (normal.y < 0) ? 1 : -1;
+		else
+		{
+			manifold.normal.y = (normal.y < 0) ? 1.f : -1.f;
 			manifold.penetration = intersection.height;
 		}
-		auto& collidableA = entA.getComponent<Collider>();
-		auto& collidableB = entB.getComponent<Collider>();
-		
-		if (collidableA.dynamic) {
-			txA.move(manifold.normal.x * manifold.penetration,manifold.normal.y * manifold.penetration);
+
+		//only correct position if dynamic objects
+		if (collisionA.dynamic)
+		{
+			txA.move(manifold.normal * manifold.penetration);
 		}
 
+		if (collisionA.callback)
+		{
+			collisionA.callback(itemA, itemB, manifold);
+		}
 
+		//flip the normal for the other item
+		manifold.normal = -manifold.normal;
+
+		if (collisionB.dynamic)
+		{
+			txB.move(manifold.normal * manifold.penetration);
+		}
+
+		if (collisionB.callback)
+		{
+			collisionB.callback(itemB, itemA, manifold);
+		}
 	}
-
-
-
 }
-

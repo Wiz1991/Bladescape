@@ -3,17 +3,17 @@
 #include <functional>
 #include <set>
 struct Manifold final {
-	float penetration = 0.f;
 	sf::Vector2f normal;
+	float penetration = 0.f;
 };
 struct Collider final {
 	bool dynamic = false;
 	std::function<void(xy::Entity, xy::Entity, Manifold)>callback;
 };
-class CollisionSystem final : xy::System
+class CollisionSystem final : public xy::System
 {
 public:
-	explicit CollisionSystem(xy::MessageBus&);
+	explicit CollisionSystem(xy::MessageBus& msgBus);
 
 	void process(float dT);
 	void broadPhase();
@@ -21,6 +21,4 @@ public:
 
 private:
 	std::set<std::pair<xy::Entity, xy::Entity>> mCollisions;
-
 };
-

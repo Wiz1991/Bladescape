@@ -2,6 +2,9 @@
 #include "States.h"
 #include "CommandIDs.h"
 #include "ResourceIDs.h"
+#include <xyginext/util/Vector.hpp>
+#include "ShapeUtils.hpp"
+#include "MessageIDs.h"
 //components
 #include <xyginext/ecs/components/Camera.hpp>
 #include <xyginext/ecs/components/Drawable.hpp>
@@ -10,14 +13,13 @@
 #include <xyginext/ecs/components/CommandTarget.hpp>
 #include <xyginext/ecs/components/BroadPhaseComponent.hpp>
 
-
 //systems
 #include <xyginext/ecs/systems/RenderSystem.hpp>
 #include <xyginext/ecs/systems/SpriteSystem.hpp>
 #include <xyginext/ecs/systems/CommandSystem.hpp>
 #include "BallSystem.h"
 #include <xyginext/ecs/systems/DynamicTreeSystem.hpp>
-
+#include "CollisionSystem.h"
 
 //SFML
 #include <SFML/Window/Event.hpp>
@@ -28,14 +30,14 @@ GameState::GameState(xy::StateStack& stack, xy::State::Context context)
 	: xy::State(stack, context)
 	, mGameScene(context.appInstance.getMessageBus())
 {
-	mGameScene.getActiveCamera().getComponent<xy::Camera>().setView(context.defaultView.getSize());
-	mGameScene.getActiveCamera().getComponent<xy::Camera>().setViewport(context.defaultView.getViewport());
 	loadResources();
 	initialiseScene();
 
-
+	mGameScene.getActiveCamera().getComponent<xy::Camera>().setView(context.defaultView.getSize());
+	mGameScene.getActiveCamera().getComponent<xy::Camera>().setViewport(context.defaultView.getViewport());
 
 	context.appInstance.setMouseCursorVisible(false);
+	context.appInstance.getRenderWindow()->setMouseCursorGrabbed(true);
 }
 
 bool GameState::handleEvent(const sf::Event& evt)
@@ -63,18 +65,17 @@ bool GameState::handleEvent(const sf::Event& evt)
 	if (evt.type == sf::Event::MouseButtonReleased && evt.mouseButton.button == sf::Mouse::Button::Left) {
 		xy::Command cmd;
 		cmd.targetFlags = CommandID::Paddle;
-		cmd.action = [&](xy::Entity entity, float) {
+		cmd.action = [&](xy::Entity entity, float)
+		{
 			auto& paddle = entity.getComponent<Paddle>();
-			if (paddle.ball.isValid()) {
+			if (paddle.ball.isValid())
+			{
 				paddle.ball.getComponent<Ball>().state = Ball::State::Active;
+				paddle.ball.getComponent<Collider>().dynamic = true;
 				auto ballBounds = paddle.ball.getComponent<xy::Sprite>().getTextureBounds();
-				auto entityPos = entity.getComponent<xy::Transform>().getPosition();
-				paddle.ball.getComponent<xy::Transform>().setPosition(entityPos + sf::Vector2f(0, -ballBounds.height / 2));
+				paddle.ball.getComponent<xy::Transform>().setPosition(entity.getComponent<xy::Transform>().getPosition() + sf::Vector2f(0.f, -ballBounds.height / 2.f));
 				entity.getComponent<xy::Transform>().removeChild(paddle.ball.getComponent<xy::Transform>());
 				paddle.ball = {};
-			}
-			else {
-				spawnBall();
 			}
 		};
 		mGameScene.getSystem<xy::CommandSystem>().sendCommand(cmd);
@@ -86,6 +87,11 @@ bool GameState::handleEvent(const sf::Event& evt)
 
 void GameState::handleMessage(const xy::Message& msg)
 {
+	if (msg.id == MessageID::BallMessage) {
+		const auto& data = msg.getData<BallEvent>();
+		if (data.action == BallEvent::Despawned)
+			spawnBall();
+	}
 	mGameScene.forwardMessage(msg);
 }
 
@@ -104,25 +110,48 @@ void GameState::draw()
 
 void GameState::initialiseScene()
 {
-	auto& msgBus = getContext().appInstance.getMessageBus();
-	getContext().appInstance.getRenderWindow()->setMouseCursorGrabbed(true);
-
-	mGameScene.addSystem<xy::CommandSystem>(msgBus);
-	mGameScene.addSystem<xy::SpriteSystem>(msgBus);
-	mGameScene.addSystem<xy::RenderSystem>(msgBus);
-	mGameScene.addSystem<BallSystem>(msgBus);
+	auto& messageBus = getContext().appInstance.getMessageBus();
+	mGameScene.addSystem<BallSystem>(messageBus);
+	mGameScene.addSystem<xy::DynamicTreeSystem>(messageBus);
+	mGameScene.addSystem<CollisionSystem>(messageBus);
+	mGameScene.addSystem<xy::CommandSystem>(messageBus);
+	mGameScene.addSystem<xy::SpriteSystem>(messageBus);
+	mGameScene.addSystem<xy::RenderSystem>(messageBus);
 
 	auto entity = mGameScene.createEntity();
-
-	entity.addComponent<xy::Transform>().setPosition(xy::DefaultSceneSize.x / 2, xy::DefaultSceneSize.y - 100);
+	entity.addComponent<xy::Transform>().setPosition(xy::DefaultSceneSize.x / 2.f, xy::DefaultSceneSize.y - 40.f);
 	entity.addComponent<xy::Sprite>(mResources.get<sf::Texture>(TextureID::handles[TextureID::Paddle]));
 	entity.addComponent<xy::Drawable>();
-	auto paddleBounds = entity.getComponent<xy::Sprite>().getTextureBounds();
-	entity.getComponent<xy::Transform>().setOrigin(paddleBounds.width / 2, -paddleBounds.height / 2);
 	entity.addComponent<xy::CommandTarget>().ID = CommandID::Paddle;
 	entity.addComponent<Paddle>();
 
+	auto paddleBounds = entity.getComponent<xy::Sprite>().getTextureBounds();
+	entity.getComponent<xy::Transform>().setOrigin(paddleBounds.width / 2.f, paddleBounds.height / 2.f);
+	entity.addComponent<xy::BroadphaseComponent>(paddleBounds);
+	entity.addComponent<Collider>();
+
 	spawnBall();
+
+	sf::FloatRect wallBounds = { 0.f, 0.f, xy::DefaultSceneSize.x, 20.f };
+	entity = mGameScene.createEntity();
+	entity.addComponent<xy::Transform>();
+	entity.addComponent<xy::BroadphaseComponent>(wallBounds);
+	entity.addComponent<Collider>();
+	Shape::setRectangle(entity.addComponent<xy::Drawable>(), { wallBounds.width, wallBounds.height });
+
+	wallBounds.width = 20.f;
+	wallBounds.height = xy::DefaultSceneSize.y;
+	entity = mGameScene.createEntity();
+	entity.addComponent<xy::Transform>().setPosition(0.f, 20.f);
+	entity.addComponent<xy::BroadphaseComponent>(wallBounds);
+	entity.addComponent<Collider>();
+	Shape::setRectangle(entity.addComponent<xy::Drawable>(), { wallBounds.width, wallBounds.height });
+
+	entity = mGameScene.createEntity();
+	entity.addComponent<xy::Transform>().setPosition(xy::DefaultSceneSize.x - wallBounds.width, 20.f);
+	entity.addComponent<xy::BroadphaseComponent>(wallBounds);
+	entity.addComponent<Collider>();
+	Shape::setRectangle(entity.addComponent<xy::Drawable>(), { wallBounds.width, wallBounds.height });
 }
 
 void GameState::loadResources()
@@ -140,7 +169,8 @@ void GameState::spawnBall()
 {
 	xy::Command cmd;
 	cmd.targetFlags = CommandID::Paddle;
-	cmd.action = [&](xy::Entity entity, float) {
+	cmd.action = [&](xy::Entity entity, float)
+	{
 		auto& paddle = entity.getComponent<Paddle>();
 		paddle.ball = mGameScene.createEntity();
 		paddle.ball.addComponent<xy::Transform>();
@@ -150,8 +180,26 @@ void GameState::spawnBall()
 
 		auto ballBounds = paddle.ball.getComponent<xy::Sprite>().getTextureBounds();
 		auto paddleBounds = entity.getComponent<xy::Sprite>().getTextureBounds();
-		paddle.ball.getComponent<xy::Transform>().setOrigin(ballBounds.width / 2, ballBounds.height / 2);
-		paddle.ball.getComponent<xy::Transform>().setPosition(paddleBounds.width / 2, -ballBounds.height / 2);
+		paddle.ball.getComponent<xy::Transform>().setOrigin(ballBounds.width / 2.f, ballBounds.height / 2.f);
+		paddle.ball.getComponent<xy::Transform>().setPosition(paddleBounds.width / 2.f, -ballBounds.height / 2.f);
+		paddle.ball.addComponent<xy::BroadphaseComponent>(ballBounds);
+		paddle.ball.addComponent<Collider>().callback =
+			[](xy::Entity e, xy::Entity other, Manifold man)
+		{
+			//if we hit the paddle change the velocity angle
+			if (other.hasComponent<Paddle>())
+			{
+				auto newVel = e.getComponent<xy::Transform>().getPosition() - other.getComponent<xy::Transform>().getPosition();
+				e.getComponent<Ball>().velocity = xy::Util::Vector::normalise(newVel);
+			}
+			else
+			{
+				//reflect the ball's velocity around the collision normal
+				auto vel = e.getComponent<Ball>().velocity;
+				vel = xy::Util::Vector::reflect(vel, man.normal);
+				e.getComponent<Ball>().velocity = vel;
+			}
+		};
 
 		entity.getComponent<xy::Transform>().addChild(paddle.ball.getComponent<xy::Transform>());
 	};

@@ -77,7 +77,7 @@ void PauseState::initialiseScene()
 
 void PauseState::loadResources()
 {
-	FontID::handles[FontID::Main] = mResources.load<sf::Font>("main.ttf");
+	FontID::handles[FontID::Main] = mResources.load<sf::Font>("assets/main.ttf");
 }
 
 xy::StateID PauseState::stateID() const
