@@ -5,6 +5,8 @@
 #include <xyginext/util/Vector.hpp>
 #include "ShapeUtils.hpp"
 #include "MessageIDs.h"
+#include "xyginext/graphics/SpriteSheet.hpp"
+
 //components
 #include <xyginext/ecs/components/Camera.hpp>
 #include <xyginext/ecs/components/Drawable.hpp>
@@ -120,7 +122,7 @@ void GameState::initialiseScene()
 
 	auto entity = mGameScene.createEntity();
 	entity.addComponent<xy::Transform>().setPosition(xy::DefaultSceneSize.x / 2.f, xy::DefaultSceneSize.y - 40.f);
-	entity.addComponent<xy::Sprite>(mResources.get<sf::Texture>(TextureID::handles[TextureID::Paddle]));
+	entity.addComponent<xy::Sprite>()= SpriteID::sprites[SpriteID::Paddle];
 	entity.addComponent<xy::Drawable>();
 	entity.addComponent<xy::CommandTarget>().ID = CommandID::Paddle;
 	entity.addComponent<Paddle>();
@@ -152,12 +154,64 @@ void GameState::initialiseScene()
 	entity.addComponent<xy::BroadphaseComponent>(wallBounds);
 	entity.addComponent<Collider>();
 	Shape::setRectangle(entity.addComponent<xy::Drawable>(), { wallBounds.width, wallBounds.height });
+
+
+
+	static const sf::FloatRect BlockSize = SpriteID::sprites[SpriteID::Block].getTextureBounds();
+	auto addBlock = [&](sf::Vector2f position, sf::Color color) {
+		auto entity = mGameScene.createEntity();
+		entity.addComponent<xy::Transform>();
+		entity.getComponent<xy::Transform>().setPosition(position);
+		entity.addComponent<xy::Sprite>() = SpriteID::sprites[SpriteID::Block];
+		entity.addComponent<xy::BroadphaseComponent>(BlockSize);
+		entity.getComponent<xy::Sprite>().setColour(color);
+		entity.addComponent<xy::CommandTarget>().ID = CommandID::Block;
+		entity.addComponent<xy::Drawable>();
+		entity.addComponent <Collider>().callback = [&](xy::Entity ent, xy::Entity other, Manifold manifold) {
+			if (other.hasComponent<Ball>())
+			auto* msg = getContext().appInstance.getMessageBus().post<BlockEvent>(BlockEvent::Destroyed);
+			mGameScene.destroyEntity(ent);
+		
+		};
+	};
+	static const std::array<sf::Color, 6u> colours =
+	{
+		sf::Color::Red, sf::Color::Magenta, sf::Color::Yellow,
+		sf::Color::Green, sf::Color::Cyan, sf::Color::Blue
+	};
+
+
+	static const std::size_t BlockXCount = 12;
+	static const std::size_t BlockYCount = 10;
+
+	sf::Vector2f offset = xy::DefaultSceneSize;
+	offset.x -= BlockXCount * BlockSize.width;
+	offset.x /= 2.f;
+
+	offset.y -= BlockYCount * BlockSize.height;
+	offset.y /= 2.f;
+
+	for (auto y = 0u; y < BlockYCount; ++y)
+	{
+		for (auto x = 0u; x < BlockXCount; ++x)
+		{
+			sf::Vector2f position(x * BlockSize.width, y * BlockSize.height);
+			auto colour = colours[y % colours.size()];
+
+			addBlock(offset + position, colour);
+		}
+	}
+
 }
 
 void GameState::loadResources()
 {
-	TextureID::handles[TextureID::Paddle] = mResources.load<sf::Texture>("assets/images/paddle.png");
-	TextureID::handles[TextureID::Ball] = mResources.load<sf::Texture>("assets/images/ball.png");
+	xy::SpriteSheet spriteSheet;
+	spriteSheet.loadFromFile("assets/sprites/sprites.spt",mResources);
+	
+	SpriteID::sprites[SpriteID::Paddle] = spriteSheet.getSprite("Paddle");
+	SpriteID::sprites[SpriteID::Ball] = spriteSheet.getSprite("Ball");
+	SpriteID::sprites[SpriteID::Block] = spriteSheet.getSprite("Block");
 }
 
 xy::StateID GameState::stateID() const
@@ -174,7 +228,7 @@ void GameState::spawnBall()
 		auto& paddle = entity.getComponent<Paddle>();
 		paddle.ball = mGameScene.createEntity();
 		paddle.ball.addComponent<xy::Transform>();
-		paddle.ball.addComponent<xy::Sprite>(mResources.get<sf::Texture>(TextureID::handles[TextureID::Ball]));
+		paddle.ball.addComponent<xy::Sprite>()= SpriteID::sprites[SpriteID::Ball];
 		paddle.ball.addComponent<xy::Drawable>();
 		paddle.ball.addComponent<Ball>();
 

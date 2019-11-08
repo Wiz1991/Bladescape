@@ -3,7 +3,8 @@
 
 namespace MessageID {
 	enum {
-		BallMessage = xy::Message::Count
+		BallMessage = xy::Message::Count,
+		BlockMessage
 	};
 }
 struct BallEvent final {
@@ -11,4 +12,9 @@ struct BallEvent final {
 		Spawned, Despawned
 	}action;
 	sf::Vector2f position;
+};
+struct BlockEvent final {
+	enum {
+		Destroyed
+	}action;
 };

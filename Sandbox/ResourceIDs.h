@@ -1,12 +1,14 @@
 #pragma once
 #include <array>
-namespace TextureID {
+#include <xyginext/ecs/components/Sprite.hpp>
+namespace SpriteID {
 	enum {
 		Paddle,
 		Ball,
+		Block,
 		Count
 	};
-	static std::array<std::size_t, TextureID::Count> handles = {};
+	static std::array<xy::Sprite, SpriteID::Count> sprites = {};
 }
 namespace FontID {
 	enum {
