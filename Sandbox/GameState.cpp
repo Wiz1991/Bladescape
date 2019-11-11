@@ -4,6 +4,7 @@
 #include "ResourceIDs.hpp"
 #include "CollisionSystem.hpp"
 #include "MessageIDs.hpp"
+#include "GameConsts.h"
 #include "ShapeUtils.hpp"
 #include <SFML/Graphics/Sprite.hpp>
 #include <xyginext/ecs/components/Transform.hpp>
@@ -48,8 +49,6 @@ GameState::GameState(xy::StateStack& ss, xy::State::Context ctx)
 
 bool GameState::handleEvent(const sf::Event& evt)
 {
-	//look for mouse move events and send them to the paddle
-
 	mGameScene.forwardEvent(evt);
 
 	return true;
@@ -62,8 +61,19 @@ void GameState::handleMessage(const xy::Message& msg)
 
 bool GameState::update(float dt)
 {
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
+		mGameScene.getEntity(player).getComponent<xy::Transform>().move(0, 2);
+	}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
+		mGameScene.getEntity(player).getComponent<xy::Transform>().move(0, -2);
+	}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
+		mGameScene.getEntity(player).getComponent<xy::Transform>().move(2, 0);
+	}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
+		mGameScene.getEntity(player).getComponent<xy::Transform>().move(-2, 0);
+	}
 	mGameScene.update(dt);
-
 	return true;
 }
 
@@ -83,21 +93,30 @@ void GameState::buildWorld()
 {
 	mMapLoader.load("map1.tmx");
 	auto& layer = mMapLoader.getLayer();
-
-	auto entity = mGameScene.createEntity();
-	entity.addComponent<xy::Transform>();
-	entity.addComponent<xy::Drawable>();
-	entity.addComponent<xy::Sprite>(layer);
-
+	auto scale = GameConsts::PixelsPerTile / mMapLoader.getTileSize();
+	//load map
+	std::int32_t depth = -50 + 2;
+	for (auto& l : layer) {
+		auto entity = mGameScene.createEntity();
+		entity.addComponent<xy::Transform>();
+		entity.addComponent<xy::Drawable>().setDepth(depth);
+		entity.addComponent<xy::Sprite>(l);
+		//entity.getComponent<xy::Transform>().setScale(scale, scale);
+		depth += 4;
+	}
+	loadCollisions();
 	//create player
-	entity = mGameScene.createEntity();
+	auto entity = mGameScene.createEntity();
 	entity.addComponent<xy::Drawable>();
-	Shape::setRectangle(entity.getComponent<xy::Drawable>(), sf::Vector2f(16, 16), sf::Color::Red);
+	Shape::setRectangle(entity.getComponent<xy::Drawable>(), sf::Vector2f(16, 16), sf::Color::White);
 	entity.addComponent<xy::Camera>();
-	entity.addComponent<xy::Transform>().setPosition(32, 400);
+	entity.addComponent<xy::Transform>().setPosition(40, 304);
+	entity.addComponent<xy::BroadphaseComponent>().setArea(entity.getComponent<xy::Drawable>().getLocalBounds());
+	entity.addComponent<CollisionComponent>().dynamic = true;
 	mGameScene.setActiveCamera(entity);
-	mGameScene.getActiveCamera().getComponent<xy::Camera>().setBounds(sf::FloatRect(0, 0, 1920, 416));
-	mGameScene.getActiveCamera().getComponent<xy::Camera>().setZoom(3.2);
+	mGameScene.getActiveCamera().getComponent<xy::Camera>().setBounds(sf::FloatRect(sf::Vector2f(), mMapLoader.getWorldSize()));
+	player = entity.getIndex();
+	mGameScene.getActiveCamera().getComponent<xy::Camera>().setZoom(scale);
 }
 
 void GameState::loadResources()
@@ -108,8 +127,22 @@ void GameState::loadResources()
 void GameState::initScene()
 {
 	auto& mb = getContext().appInstance.getMessageBus();
-
-	mGameScene.addSystem<xy::RenderSystem>(mb);
+	mGameScene.addSystem<xy::DynamicTreeSystem>(mb);
+	mGameScene.addSystem<CollisionSystem>(mb);
 	mGameScene.addSystem<xy::CameraSystem>(mb);
 	mGameScene.addSystem<xy::SpriteSystem>(mb);
+	mGameScene.addSystem<xy::RenderSystem>(mb);
+}
+
+void GameState::loadCollisions()
+{
+	auto& collisions = mMapLoader.getCollisionShapes();
+	for (auto& col : collisions) {
+		auto entity = mGameScene.createEntity();
+		entity.addComponent<xy::Transform>().setPosition(col.left, col.top);
+		col.left = 0.f; //reset to local transform
+		col.top = 0.f;
+		entity.addComponent<xy::BroadphaseComponent>().setArea(col);
+		entity.addComponent<CollisionComponent>();
+	}
 }

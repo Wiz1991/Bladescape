@@ -64,12 +64,14 @@ bool MapLoader::load(const std::string& file)
 
 		sf::RenderTexture renderLayer;
 		renderLayer.create(map.getTileCount().x * map.getTileSize().x, map.getTileCount().y * map.getTileSize().y);
-
+		mWorldSize = sf::Vector2f(map.getTileCount().x * map.getTileSize().x, map.getTileCount().y * map.getTileSize().y);
 		const auto& layers = map.getLayers();
 		for (const auto& layer : layers) {
 			if (layer->getType() == tmx::Layer::Type::Tile) {
+				renderLayer.clear(sf::Color::Transparent);
 				const auto& tileLayer = layer->getLayerAs<tmx::TileLayer>();
 				const auto& tiles = tileLayer.getTiles();
+				tileSize = map.getTileSize().x;
 
 				for (auto y = 0u; y < map.getTileCount().y; ++y) {
 					for (auto x = 0u; x < map.getTileCount().x; ++x) {
@@ -100,9 +102,21 @@ bool MapLoader::load(const std::string& file)
 					}
 				}
 				renderLayer.display();
+				mLayer.push_back(renderLayer.getTexture());
+			}
+			else if (layer->getType() == tmx::Layer::Type::Object) {
+				auto toFloatRect = [](tmx::FloatRect rect)->sf::FloatRect
+				{
+					return { rect.left, rect.top, rect.width, rect.height };
+				};
+				const auto& objects = layer->getLayerAs<tmx::ObjectGroup>().getObjects();
+				for (const auto& object : objects) {
+					if (object.getType() == "solid") {
+						mCollisionShapes.emplace_back(toFloatRect(object.getAABB()));
+					}
+				}
 			}
 		}
-		mLayer = renderLayer.getTexture();
 	}
 
 	return false;

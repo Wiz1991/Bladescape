@@ -25,8 +25,10 @@ private:
 	void buildWorld();
 	void loadResources();
 	void initScene();
+	void loadCollisions();
 
 private:
 	xy::Scene mGameScene;
 	MapLoader mMapLoader;
+	xy::Entity::ID player;
 };

@@ -30,6 +30,7 @@
     <ClInclude Include="CollisionSystem.hpp" />
     <ClInclude Include="CommandIDs.hpp" />
     <ClInclude Include="Game.hpp" />
+    <ClInclude Include="GameConsts.h" />
     <ClInclude Include="GameState.hpp" />
     <ClInclude Include="MapLoader.h" />
     <ClInclude Include="MessageIDs.hpp" />
