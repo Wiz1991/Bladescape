@@ -1,4 +1,4 @@
-#include "Application.h"
+#include "Game.hpp"
 
 #ifdef __linux
 #include <X11/Xlib.h>
@@ -9,8 +9,9 @@ int main()
 #ifdef __linux
 	XInitThreads();
 #endif //__linux
-	Application app;
-	app.run();
+
+	Game game;
+	game.run();
 
 	return 0;
 }

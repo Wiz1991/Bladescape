@@ -1,49 +1,53 @@
-#include "CollisionSystem.h"
+#include "CollisionSystem.hpp"
+
 #include <xyginext/ecs/components/Transform.hpp>
 #include <xyginext/ecs/components/BroadPhaseComponent.hpp>
-#include <xyginext/ecs/Scene.hpp>
 #include <xyginext/ecs/systems/DynamicTreeSystem.hpp>
+#include <xyginext/ecs/Scene.hpp>
 
-CollisionSystem::CollisionSystem(xy::MessageBus& bus) :
-	xy::System(bus, typeid(CollisionSystem))
+CollisionSystem::CollisionSystem(xy::MessageBus& mb)
+	: xy::System(mb, typeid(CollisionSystem))
 {
 	requireComponent<xy::Transform>();
 	requireComponent<xy::BroadphaseComponent>();
-	requireComponent<Collider>();
+	requireComponent<CollisionComponent>();
 }
 
 void CollisionSystem::process(float)
 {
 	mCollisions.clear();
 
-	broadPhase();
-	narrowPhase();
-}
-
-void CollisionSystem::broadPhase()
-{
+	//do a broadphase pass on our list of entities
+	//if they are a dynamic collider such as the ball or paddle
 	auto& entities = getEntities();
-	for (auto entity : entities) {
-		auto& collider = entity.getComponent<Collider>();
-		if (collider.dynamic) {
+	for (auto entity : entities)
+	{
+		auto& collision = entity.getComponent<CollisionComponent>();
+		if (collision.dynamic)
+		{
+			//query the dynamic tree for nearby entities
 			auto bounds = entity.getComponent<xy::Transform>().getTransform().transformRect(entity.getComponent<xy::BroadphaseComponent>().getArea());
 			auto others = getScene()->getSystem<xy::DynamicTreeSystem>().query(bounds);
-			for (auto other : others) {
-				if (other != entity) {
-					auto otherBounds = entity.getComponent<xy::Transform>().getTransform().transformRect(
-						other.getComponent<xy::BroadphaseComponent>().getArea()
-					);
-					if (bounds.intersects(otherBounds)) {
+
+			//check each of the results to see if their AABBs overlap
+			for (auto other : others)
+			{
+				if (other != entity)
+				{
+					auto otherBounds = other.getComponent<xy::Transform>().getTransform().transformRect(other.getComponent<xy::BroadphaseComponent>().getArea());
+
+					//and add it to the collision list
+					if (bounds.intersects(otherBounds))
+					{
 						mCollisions.insert(std::minmax(entity, other));
 					}
 				}
 			}
 		}
 	}
-}
 
-void CollisionSystem::narrowPhase()
-{
+	//iterate the list of collisions, correct the overlap
+	//and call any callbacks if they exist
 	for (auto& c : mCollisions)
 	{
 		auto itemA = c.first;
@@ -52,8 +56,8 @@ void CollisionSystem::narrowPhase()
 		auto& txA = itemA.getComponent<xy::Transform>();
 		auto& txB = itemB.getComponent<xy::Transform>();
 
-		const auto& collisionA = itemA.getComponent<Collider>();
-		const auto& collisionB = itemB.getComponent<Collider>();
+		const auto& collisionA = itemA.getComponent<CollisionComponent>();
+		const auto& collisionB = itemB.getComponent<CollisionComponent>();
 
 		//manifold calculation
 		auto boundsA = txA.getTransform().transformRect(itemA.getComponent<xy::BroadphaseComponent>().getArea());

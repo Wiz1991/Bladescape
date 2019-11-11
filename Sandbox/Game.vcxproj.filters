@@ -13,87 +13,83 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Source Files\core">
-      <UniqueIdentifier>{3d933f4b-33a1-46e9-9deb-e8ee48067c6e}</UniqueIdentifier>
+    <Filter Include="Source Files\states">
+      <UniqueIdentifier>{feb58180-b56f-4b44-bee5-6bdd69c43043}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\core">
-      <UniqueIdentifier>{9eb1efca-c680-4d53-ab49-3503087f43e8}</UniqueIdentifier>
+    <Filter Include="Source Files\systems">
+      <UniqueIdentifier>{eeda13ae-fcf3-49ca-ae96-8178497bd278}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\core\states">
-      <UniqueIdentifier>{9adceaf8-c8e3-4ff5-b9a8-e0709bc9db68}</UniqueIdentifier>
+    <Filter Include="Header Files\systems">
+      <UniqueIdentifier>{be13eef1-81d5-4b81-a224-72852e2cd065}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\core\states">
-      <UniqueIdentifier>{a51b44bc-8adc-4a65-ab30-2cf93872be02}</UniqueIdentifier>
+    <Filter Include="Header Files\states">
+      <UniqueIdentifier>{1a6752f9-15ad-4918-9a7c-bd42453b28d0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\core\input">
-      <UniqueIdentifier>{623f2351-906d-4f2c-adc2-cd916284fdb5}</UniqueIdentifier>
+    <Filter Include="Source Files\utils">
+      <UniqueIdentifier>{88f6f96d-869e-47fa-b252-0e9a3035ed51}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\ecs">
-      <UniqueIdentifier>{aa8812fa-35ec-477e-98e5-9ff4fb3feb19}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\ecs">
-      <UniqueIdentifier>{e79a05f0-b511-435c-a7c9-4086afeaf75e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\utils">
-      <UniqueIdentifier>{d750a448-7181-487a-978f-5d7f2db67cb3}</UniqueIdentifier>
+    <Filter Include="Header Files\detail">
+      <UniqueIdentifier>{5c295431-eeae-4a31-bd54-af9f0dd231c9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Game.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Application.cpp">
-      <Filter>Source Files\core</Filter>
-    </ClCompile>
-    <ClCompile Include="MenuState.cpp">
-      <Filter>Source Files\core\states</Filter>
+    <ClCompile Include="CollisionSystem.cpp">
+      <Filter>Source Files\systems</Filter>
     </ClCompile>
     <ClCompile Include="GameState.cpp">
-      <Filter>Source Files\core\states</Filter>
+      <Filter>Source Files\states</Filter>
     </ClCompile>
-    <ClCompile Include="PauseState.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="MenuState.cpp">
+      <Filter>Source Files\states</Filter>
     </ClCompile>
-    <ClCompile Include="BallSystem.cpp">
-      <Filter>Source Files\ecs</Filter>
-    </ClCompile>
-    <ClCompile Include="CollisionSystem.cpp">
+    <ClCompile Include="MapLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Application.h">
-      <Filter>Header Files\core</Filter>
+    <ClInclude Include="Game.hpp">
+      <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="States.h">
-      <Filter>Header Files\core\states</Filter>
+    <ClInclude Include="GameState.hpp">
+      <Filter>Header Files\states</Filter>
     </ClInclude>
-    <ClInclude Include="GameState.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="MenuState.hpp">
+      <Filter>Header Files\states</Filter>
     </ClInclude>
-    <ClInclude Include="MenuState.h">
-      <Filter>Header Files\core\states</Filter>
+    <ClInclude Include="States.hpp">
+      <Filter>Header Files\states</Filter>
     </ClInclude>
-    <ClInclude Include="CommandIDs.h">
-      <Filter>Header Files\core\input</Filter>
-    </ClInclude>
-    <ClInclude Include="ResourceIDs.h">
-      <Filter>Header Files\core</Filter>
-    </ClInclude>
-    <ClInclude Include="PauseState.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BallSystem.h">
-      <Filter>Header Files\ecs</Filter>
-    </ClInclude>
-    <ClInclude Include="CollisionSystem.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="CollisionSystem.hpp">
+      <Filter>Header Files\systems</Filter>
     </ClInclude>
     <ClInclude Include="ShapeUtils.hpp">
-      <Filter>Header Files\utils</Filter>
+      <Filter>Source Files\utils</Filter>
     </ClInclude>
-    <ClInclude Include="MessageIDs.h">
-      <Filter>Header Files\core</Filter>
+    <ClInclude Include="ResourceIDs.hpp">
+      <Filter>Header Files\detail</Filter>
     </ClInclude>
+    <ClInclude Include="MessageIDs.hpp">
+      <Filter>Header Files\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandIDs.hpp">
+      <Filter>Header Files\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MapLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Game.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

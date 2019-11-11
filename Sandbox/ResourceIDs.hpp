@@ -1,19 +1,30 @@
 #pragma once
+
 #include <array>
+
 #include <xyginext/ecs/components/Sprite.hpp>
-namespace SpriteID {
-	enum {
-		Paddle,
-		Ball,
-		Block,
+
+namespace SpriteID
+{
+	enum
+	{
 		Count
 	};
+
 	static std::array<xy::Sprite, SpriteID::Count> sprites = {};
 }
-namespace FontID {
-	enum {
-		Main,
+
+namespace FontID
+{
+	enum
+	{
 		Count
 	};
-	static std::array<std::size_t, FontID::Count>handles = {};
+
+	static std::array<std::size_t, Count> fonts = {};
+}
+namespace ShaderID {
+	enum {
+		TileMap,
+	};
 }
