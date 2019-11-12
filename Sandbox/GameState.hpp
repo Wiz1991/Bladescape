@@ -6,6 +6,7 @@
 #include "MapLoader.h"
 #include <SFML/Graphics/Texture.hpp>
 #include <xyginext/resources/ShaderResource.hpp>
+#include "PlayerController.h"
 class GameState final : public xy::State
 {
 public:
@@ -31,4 +32,5 @@ private:
 	xy::Scene mGameScene;
 	MapLoader mMapLoader;
 	xy::Entity::ID player;
+	PlayerController mPlayerController;
 };

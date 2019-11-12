@@ -22,6 +22,7 @@
 #include <xyginext/ecs/systems/TextSystem.hpp>
 #include <xyginext/ecs/systems/CallbackSystem.hpp>
 #include <xyginext/ecs/systems/CameraSystem.hpp>
+#include "PlayerSystem.h"
 
 #include <xyginext/ecs/systems/SpriteAnimator.hpp>
 
@@ -31,12 +32,13 @@
 
 #include <SFML/Window/Event.hpp>
 #include <SFML/Graphics/Font.hpp>
+#include "InputBinding.h"
 
 GameState::GameState(xy::StateStack& ss, xy::State::Context ctx)
 	: xy::State(ss, ctx),
 	mGameScene(ctx.appInstance.getMessageBus()),
-	mMapLoader()
-
+	mMapLoader(),
+	mPlayerController(InputBinding())
 {
 	initScene();
 	buildWorld();
@@ -50,7 +52,7 @@ GameState::GameState(xy::StateStack& ss, xy::State::Context ctx)
 bool GameState::handleEvent(const sf::Event& evt)
 {
 	mGameScene.forwardEvent(evt);
-
+	mPlayerController.handleEvent(evt);
 	return true;
 }
 
@@ -61,19 +63,8 @@ void GameState::handleMessage(const xy::Message& msg)
 
 bool GameState::update(float dt)
 {
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
-		mGameScene.getEntity(player).getComponent<xy::Transform>().move(0, 2);
-	}
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
-		mGameScene.getEntity(player).getComponent<xy::Transform>().move(0, -2);
-	}
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
-		mGameScene.getEntity(player).getComponent<xy::Transform>().move(2, 0);
-	}
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
-		mGameScene.getEntity(player).getComponent<xy::Transform>().move(-2, 0);
-	}
 	mGameScene.update(dt);
+	mPlayerController.update();
 	return true;
 }
 
@@ -113,6 +104,8 @@ void GameState::buildWorld()
 	entity.addComponent<xy::Transform>().setPosition(40, 304);
 	entity.addComponent<xy::BroadphaseComponent>().setArea(entity.getComponent<xy::Drawable>().getLocalBounds());
 	entity.addComponent<CollisionComponent>().dynamic = true;
+	entity.addComponent<PlayerComponent>();
+	mPlayerController.setPlayerEntity(entity);
 	mGameScene.setActiveCamera(entity);
 	mGameScene.getActiveCamera().getComponent<xy::Camera>().setBounds(sf::FloatRect(sf::Vector2f(), mMapLoader.getWorldSize()));
 	player = entity.getIndex();
@@ -131,6 +124,7 @@ void GameState::initScene()
 	mGameScene.addSystem<CollisionSystem>(mb);
 	mGameScene.addSystem<xy::CameraSystem>(mb);
 	mGameScene.addSystem<xy::SpriteSystem>(mb);
+	mGameScene.addSystem<PlayerSystem>(mb);
 	mGameScene.addSystem<xy::RenderSystem>(mb);
 }
 
