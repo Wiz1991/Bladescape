@@ -1,16 +1,23 @@
 #pragma once
 #include <xyginext/ecs/System.hpp>
-struct PlayerComponent final {
+struct Player final {
 	std::uint16_t mInput;
 	std::uint16_t mPrevInput;
-	enum {
-		Falling, Running, Jumping, Dying
-	}state = Falling;
-
-	sf::Vector2f velocity = { 0,0 };
-	static constexpr float xDrag = 0.81;
-	float jumpImpulse = -1500;
-	static constexpr float acceleration = 32.f;
+	enum class Direction :sf::Uint8
+	{
+		Left, Right
+	};
+	enum
+	{
+		JumpFlag = 0x1,
+	};
+	enum class State : sf::Uint8
+	{
+		Walking, Jumping, Dying, Dead, Disabled //disable the player during map transitions
+	}state = State::Jumping;
+	sf::Vector2f velocity;
+	sf::Uint8 canLand;
+	sf::Uint8 flags;
 };
 class PlayerSystem final : public xy::System
 {
@@ -18,5 +25,11 @@ public:
 	PlayerSystem(xy::MessageBus& bus);
 
 	void process(float dt);
+	sf::Vector2f parseInput(std::uint16_t mask);
+	void resolveCollision(xy::Entity);
+
+	void collisionWalking(xy::Entity);
+	void collisionJumping(xy::Entity);
+	void collisionDying(xy::Entity);
 	void applyVelocity(xy::Entity e, float dt);
 };

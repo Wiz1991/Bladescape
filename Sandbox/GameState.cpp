@@ -64,6 +64,7 @@ void GameState::handleMessage(const xy::Message& msg)
 bool GameState::update(float dt)
 {
 	mGameScene.update(dt);
+
 	mPlayerController.update();
 	return true;
 }
@@ -97,14 +98,24 @@ void GameState::buildWorld()
 	}
 	loadCollisions();
 	//create player
+	static const sf::FloatRect ClocksyBounds(0, 0, 16, 16);
+	static const sf::FloatRect ClocksyFoot(0, 16, 16, 1);
+
+	static const sf::FloatRect PlayerBounds = ClocksyBounds;
+	static const sf::FloatRect PlayerFoot = ClocksyFoot;
+	static const sf::Vector2f PlayerOrigin(8, 16);
+
 	auto entity = mGameScene.createEntity();
 	entity.addComponent<xy::Drawable>();
 	Shape::setRectangle(entity.getComponent<xy::Drawable>(), sf::Vector2f(16, 16), sf::Color::White);
 	entity.addComponent<xy::Camera>();
 	entity.addComponent<xy::Transform>().setPosition(40, 304);
+	entity.addComponent<CollisionComponent>().addHitbox(PlayerBounds, CollisionType::Player);
+	entity.getComponent<CollisionComponent>().addHitbox(PlayerFoot, CollisionType::Foot);
+	entity.getComponent<CollisionComponent>().setCollisionCategoryBits(CollisionFlags::Player);
+	entity.getComponent<CollisionComponent>().setCollisionMaskBits(CollisionFlags::PlayerMask);
 	entity.addComponent<xy::BroadphaseComponent>().setArea(entity.getComponent<xy::Drawable>().getLocalBounds());
-	entity.addComponent<CollisionComponent>().dynamic = true;
-	entity.addComponent<PlayerComponent>();
+	entity.addComponent<Player>();
 	mPlayerController.setPlayerEntity(entity);
 	mGameScene.setActiveCamera(entity);
 	mGameScene.getActiveCamera().getComponent<xy::Camera>().setBounds(sf::FloatRect(sf::Vector2f(), mMapLoader.getWorldSize()));
@@ -136,7 +147,7 @@ void GameState::loadCollisions()
 		entity.addComponent<xy::Transform>().setPosition(col.left, col.top);
 		col.left = 0.f; //reset to local transform
 		col.top = 0.f;
+		entity.addComponent<CollisionComponent>().addHitbox(sf::FloatRect(col.left, col.top, col.width, col.height), CollisionType::Solid);
 		entity.addComponent<xy::BroadphaseComponent>().setArea(col);
-		entity.addComponent<CollisionComponent>();
 	}
 }

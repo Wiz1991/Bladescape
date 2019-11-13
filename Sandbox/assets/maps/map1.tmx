@@ -27,12 +27,12 @@
   <object id="6" type="solid" x="448" y="304" width="96" height="48"/>
   <object id="7" type="solid" x="432" y="320" width="16" height="32"/>
   <object id="8" type="solid" x="416" y="336" width="16" height="16"/>
-  <object id="9" type="fluid" x="192" y="368" width="112" height="32">
+  <object id="9" type="solid" x="192" y="368" width="112" height="32">
    <properties>
     <property name="id" type="int" value="0"/>
    </properties>
   </object>
-  <object id="10" type="fluid" x="544" y="320" width="80" height="32">
+  <object id="10" type="solid" x="544" y="320" width="80" height="32">
    <properties>
     <property name="id" type="int" value="1"/>
    </properties>

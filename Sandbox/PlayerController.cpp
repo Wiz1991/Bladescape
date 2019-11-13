@@ -13,18 +13,24 @@ void PlayerController::handleEvent(const sf::Event& evt)
 {
 	if (evt.type == sf::Event::KeyPressed) {
 		if (evt.key.code == sf::Keyboard::A) {
-			mCurrentInput |= InputBinding::Left;
+			mCurrentInput |= InputFlag::Left;
 		}
 		if (evt.key.code == sf::Keyboard::D) {
-			mCurrentInput |= InputBinding::Right;
+			mCurrentInput |= InputFlag::Right;
+		}
+		if (evt.key.code == sf::Keyboard::W) {
+			mCurrentInput |= InputFlag::Jump;
 		}
 	}
 	if (evt.type == sf::Event::KeyReleased) {
 		if (evt.key.code == sf::Keyboard::A) {
-			mCurrentInput &= ~InputBinding::Left;
+			mCurrentInput &= ~InputFlag::Left;
 		}
 		if (evt.key.code == sf::Keyboard::D) {
-			mCurrentInput &= ~InputBinding::Right;
+			mCurrentInput &= ~InputFlag::Right;
+		}
+		if (evt.key.code == sf::Keyboard::W) {
+			mCurrentInput &= ~InputFlag::Jump;
 		}
 	}
 }
@@ -32,7 +38,7 @@ void PlayerController::handleEvent(const sf::Event& evt)
 void PlayerController::update()
 {
 	if (mPlayer.isValid()) {
-		auto& player = mPlayer.getComponent<PlayerComponent>();
+		auto& player = mPlayer.getComponent<Player>();
 
 		player.mInput = mCurrentInput;
 	}
