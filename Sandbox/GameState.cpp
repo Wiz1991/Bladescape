@@ -14,6 +14,7 @@
 #include <xyginext/ecs/components/CommandTarget.hpp>
 #include <xyginext/ecs/components/BroadPhaseComponent.hpp>
 #include <xyginext/ecs/components/Text.hpp>
+#include <xyginext/ecs/components/SpriteAnimation.hpp>
 
 #include <xyginext/ecs/systems/DynamicTreeSystem.hpp>
 #include <xyginext/ecs/systems/SpriteSystem.hpp>
@@ -22,8 +23,9 @@
 #include <xyginext/ecs/systems/TextSystem.hpp>
 #include <xyginext/ecs/systems/CallbackSystem.hpp>
 #include <xyginext/ecs/systems/CameraSystem.hpp>
-#include "PlayerSystem.h"
 
+#include "CameraTargetSystem.h"
+#include "StringUtils.h"
 #include <xyginext/ecs/systems/SpriteAnimator.hpp>
 
 #include <xyginext/core/App.hpp>
@@ -31,16 +33,16 @@
 #include <xyginext/graphics/SpriteSheet.hpp>
 
 #include <SFML/Window/Event.hpp>
+
 #include <SFML/Graphics/Font.hpp>
-#include "InputBinding.h"
 
 GameState::GameState(xy::StateStack& ss, xy::State::Context ctx)
 	: xy::State(ss, ctx),
-	mGameScene(ctx.appInstance.getMessageBus()),
-	mMapLoader(),
-	mPlayerController(InputBinding())
+	mGameScene(ctx.appInstance.getMessageBus())
+
 {
 	initScene();
+	loadResources();
 	buildWorld();
 
 	mGameScene.getActiveCamera().getComponent<xy::Camera>().setView(ctx.defaultView.getSize());
@@ -52,7 +54,7 @@ GameState::GameState(xy::StateStack& ss, xy::State::Context ctx)
 bool GameState::handleEvent(const sf::Event& evt)
 {
 	mGameScene.forwardEvent(evt);
-	mPlayerController.handleEvent(evt);
+
 	return true;
 }
 
@@ -65,14 +67,13 @@ bool GameState::update(float dt)
 {
 	mGameScene.update(dt);
 
-	mPlayerController.update();
 	return true;
 }
 
 void GameState::draw()
 {
 	auto rw = getContext().appInstance.getRenderWindow();
-
+	rw->clear(sf::Color::White);
 	rw->draw(mGameScene);
 }
 
@@ -83,71 +84,33 @@ xy::StateID GameState::stateID() const
 
 void GameState::buildWorld()
 {
-	mMapLoader.load("map1.tmx");
-	auto& layer = mMapLoader.getLayer();
-	auto scale = GameConsts::PixelsPerTile / mMapLoader.getTileSize();
-	//load map
-	std::int32_t depth = -50 + 2;
-	for (auto& l : layer) {
-		auto entity = mGameScene.createEntity();
-		entity.addComponent<xy::Transform>();
-		entity.addComponent<xy::Drawable>().setDepth(depth);
-		entity.addComponent<xy::Sprite>(l);
-		//entity.getComponent<xy::Transform>().setScale(scale, scale);
-		depth += 4;
-	}
-	loadCollisions();
-	//create player
-	static const sf::FloatRect ClocksyBounds(0, 0, 16, 16);
-	static const sf::FloatRect ClocksyFoot(0, 16, 16, 1);
-
-	static const sf::FloatRect PlayerBounds = ClocksyBounds;
-	static const sf::FloatRect PlayerFoot = ClocksyFoot;
-	static const sf::Vector2f PlayerOrigin(8, 16);
-
 	auto entity = mGameScene.createEntity();
+	entity.addComponent<xy::Sprite>() = mSprites[SpriteID::Player];
+	entity.addComponent<xy::SpriteAnimation>().play(m_playerAnimations[AnimID::Player::Run]);
 	entity.addComponent<xy::Drawable>();
-	Shape::setRectangle(entity.getComponent<xy::Drawable>(), sf::Vector2f(16, 16), sf::Color::White);
-	entity.addComponent<xy::Camera>();
-	entity.addComponent<xy::Transform>().setPosition(40, 304);
-	entity.addComponent<CollisionComponent>().addHitbox(PlayerBounds, CollisionType::Player);
-	entity.getComponent<CollisionComponent>().addHitbox(PlayerFoot, CollisionType::Foot);
-	entity.getComponent<CollisionComponent>().setCollisionCategoryBits(CollisionFlags::Player);
-	entity.getComponent<CollisionComponent>().setCollisionMaskBits(CollisionFlags::PlayerMask);
-	entity.addComponent<xy::BroadphaseComponent>().setArea(entity.getComponent<xy::Drawable>().getLocalBounds());
-	entity.addComponent<Player>();
-	mPlayerController.setPlayerEntity(entity);
-	mGameScene.setActiveCamera(entity);
-	mGameScene.getActiveCamera().getComponent<xy::Camera>().setBounds(sf::FloatRect(sf::Vector2f(), mMapLoader.getWorldSize()));
-	player = entity.getIndex();
-	mGameScene.getActiveCamera().getComponent<xy::Camera>().setZoom(scale);
+
+	entity.addComponent<xy::Transform>().setPosition(500, 200);
+	entity.getComponent<xy::Transform>().setScale(3, 3);
 }
 
 void GameState::loadResources()
 {
 	xy::SpriteSheet spriteSheet;
+	spriteSheet.loadFromFile("assets/sprites/player.spt", mTextureResource);
+	mSprites[SpriteID::Player] = spriteSheet.getSprite("player");
+	m_playerAnimations[AnimID::Player::Idle] = spriteSheet.getAnimationIndex("idle", "player");
+	m_playerAnimations[AnimID::Player::Jump] = spriteSheet.getAnimationIndex("jump", "player");
+	m_playerAnimations[AnimID::Player::Run] = spriteSheet.getAnimationIndex("run", "player");
+	m_playerAnimations[AnimID::Player::Die] = spriteSheet.getAnimationIndex("die", "player");
 }
-
 void GameState::initScene()
 {
 	auto& mb = getContext().appInstance.getMessageBus();
-	mGameScene.addSystem<xy::DynamicTreeSystem>(mb);
-	mGameScene.addSystem<CollisionSystem>(mb);
-	mGameScene.addSystem<xy::CameraSystem>(mb);
 	mGameScene.addSystem<xy::SpriteSystem>(mb);
-	mGameScene.addSystem<PlayerSystem>(mb);
+	mGameScene.addSystem<xy::SpriteAnimator>(mb);
 	mGameScene.addSystem<xy::RenderSystem>(mb);
 }
 
 void GameState::loadCollisions()
 {
-	auto& collisions = mMapLoader.getCollisionShapes();
-	for (auto& col : collisions) {
-		auto entity = mGameScene.createEntity();
-		entity.addComponent<xy::Transform>().setPosition(col.left, col.top);
-		col.left = 0.f; //reset to local transform
-		col.top = 0.f;
-		entity.addComponent<CollisionComponent>().addHitbox(sf::FloatRect(col.left, col.top, col.width, col.height), CollisionType::Solid);
-		entity.addComponent<xy::BroadphaseComponent>().setArea(col);
-	}
 }

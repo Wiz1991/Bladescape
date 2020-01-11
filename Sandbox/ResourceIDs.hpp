@@ -8,16 +8,19 @@ namespace SpriteID
 {
 	enum
 	{
-		Count
+		Player = 0,
+		Block,
+		Count,
 	};
 
-	static std::array<xy::Sprite, SpriteID::Count> sprites = {};
+	static std::array<xy::Sprite, Count> sprites = {};
 }
 
 namespace FontID
 {
 	enum
 	{
+		Main = 0,
 		Count
 	};
 
@@ -25,6 +28,5 @@ namespace FontID
 }
 namespace ShaderID {
 	enum {
-		TileMap,
 	};
 }

@@ -48,11 +48,8 @@
     <ClCompile Include="MenuState.cpp">
       <Filter>Source Files\states</Filter>
     </ClCompile>
-    <ClCompile Include="MapLoader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="PlayerController.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="CameraTargetSystem.cpp">
+      <Filter>Header Files\systems</Filter>
     </ClCompile>
     <ClCompile Include="PlayerSystem.cpp">
       <Filter>Source Files\systems</Filter>
@@ -86,20 +83,8 @@
     <ClInclude Include="CommandIDs.hpp">
       <Filter>Header Files\detail</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MapLoader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="GameConsts.h">
       <Filter>Header Files\detail</Filter>
-    </ClInclude>
-    <ClInclude Include="PlayerController.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="InputBinding.h">
-      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="KeyMapping.h">
       <Filter>Header Files\detail</Filter>
@@ -107,13 +92,14 @@
     <ClInclude Include="StringUtils.h">
       <Filter>Source Files\utils</Filter>
     </ClInclude>
+    <ClInclude Include="CameraTargetSystem.h">
+      <Filter>Header Files\systems</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimationData.h">
+      <Filter>Header Files\detail</Filter>
+    </ClInclude>
     <ClInclude Include="PlayerSystem.h">
       <Filter>Header Files\systems</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="Game.rc">
-      <Filter>Resource Files</Filter>
-    </ResourceCompile>
   </ItemGroup>
 </Project>

@@ -3,10 +3,11 @@
 #include <xyginext/core/State.hpp>
 #include <xyginext/ecs/Scene.hpp>
 #include <xyginext/resources/ResourceHandler.hpp>
-#include "MapLoader.h"
 #include <SFML/Graphics/Texture.hpp>
-#include <xyginext/resources/ShaderResource.hpp>
-#include "PlayerController.h"
+#include <xyginext/resources/Resource.hpp>
+#include "ResourceIDs.hpp"
+#include "AnimationData.h"
+
 class GameState final : public xy::State
 {
 public:
@@ -30,7 +31,7 @@ private:
 
 private:
 	xy::Scene mGameScene;
-	MapLoader mMapLoader;
-	xy::Entity::ID player;
-	PlayerController mPlayerController;
+	xy::TextureResource mTextureResource;
+	std::array<xy::Sprite, SpriteID::Count> mSprites;
+	AnimationMap<AnimID::Player::Count> m_playerAnimations;
 };

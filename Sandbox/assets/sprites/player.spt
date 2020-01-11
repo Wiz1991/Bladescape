@@ -1,0 +1,43 @@
+spritesheet player
+{
+    src="assets/images/gearboy/ninja.png"
+
+    sprite player
+    {
+        bounds = 0,0,16,16
+
+        animation idle
+        {
+            frame = 0,0,16,16
+            frame = 16,0,16,16
+
+            loop=true
+            framerate=12
+        }
+
+        animation run
+        {
+            frame = 32,0,16,16
+            frame = 48,0,16,16
+            frame = 64,0,16,16
+
+            loop=true
+            framerate=20
+        }
+
+        animation jump
+        {
+            frame = 80,0,16,16
+            loop=true
+            framerate=30
+        }
+
+        animation die
+        {
+            frame=96,0,16,16
+            frame=112,0,16,16
+            loop=true
+            framerate=12
+        }
+    }
+}
