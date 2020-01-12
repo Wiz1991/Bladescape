@@ -7,6 +7,7 @@
 #include <xyginext/resources/Resource.hpp>
 #include "ResourceIDs.hpp"
 #include "AnimationData.h"
+#include "PlayerController.h"
 
 class GameState final : public xy::State
 {
@@ -32,6 +33,7 @@ private:
 private:
 	xy::Scene mGameScene;
 	xy::TextureResource mTextureResource;
+	PlayerController mPlayerController;
 	std::array<xy::Sprite, SpriteID::Count> mSprites;
 	AnimationMap<AnimID::Player::Count> m_playerAnimations;
 };

@@ -6,9 +6,12 @@ namespace AnimID
 {
 	namespace Player
 	{
+		//MUST BE IN THE SAME ORDER AS IN THE .SPT FILE
 		enum
 		{
-			Idle, Jump, Run, Die,
+			Run,
+			Idle,
+			Hit,
 
 			Count
 		};

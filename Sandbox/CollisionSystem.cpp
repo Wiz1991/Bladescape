@@ -9,9 +9,9 @@
 
 CollisionSystem::CollisionSystem(xy::MessageBus& mb)
 	: xy::System(mb, typeid(CollisionSystem))
-#ifdef DDRAW
+	//#ifdef DDRAW
 	, mDebugLines(true)
-#endif // DDRAW
+	//#endif // DDRAW
 {
 	requireComponent<xy::Transform>();
 	requireComponent<CollisionComponent>();
@@ -19,9 +19,9 @@ CollisionSystem::CollisionSystem(xy::MessageBus& mb)
 
 void CollisionSystem::process(float dT)
 {
-#ifdef DDRAW
+	//#ifdef DDRAW
 	mVertices.clear();
-#endif // DDRAW
+	//#endif // DDRAW
 	mCollisions.clear();
 	auto& entities = getEntities();
 	for (auto& entity : entities) {
@@ -34,20 +34,24 @@ void CollisionSystem::broadPhase(xy::Entity entity)
 	const auto& eTransform = entity.getComponent<xy::Transform>();
 	auto& collisionComponent = entity.getComponent<CollisionComponent>();
 
-#ifdef DDRAW
+	//#ifdef DDRAW
 	for (auto i = 0; i < collisionComponent.getHitboxCount(); ++i) {
-		auto& hitbox = collisionComponent.getHitboxes()[i];
+		auto& hitbox = collisionComponent.mHitboxes[i];
 		auto rect = hitbox.getBoundingRect();
 		rect = entity.getComponent<xy::Transform>().getTransform().transformRect(rect);
 
 		sf::Color color = (hitbox.getCollisionCount() > 0) ? sf::Color::Red : sf::Color::Green;
 
-		mVertices.emplace_back(sf::Vector2f(rect.left, rect.top), color);
+		mVertices.emplace_back(sf::Vector2f(rect.left, rect.top), sf::Color::Transparent);
+		mVertices.emplace_back(sf::Vector2f(rect.left, rect.top), color); //TODO use a colour based on collision type?
 		mVertices.emplace_back(sf::Vector2f(rect.left + rect.width, rect.top), color);
-		mVertices.emplace_back(sf::Vector2f(rect.left + rect.width, rect.top + rect.height));
-		mVertices.emplace_back(sf::Vector2f(rect.left, rect.top + rect.height));
+		mVertices.emplace_back(sf::Vector2f(rect.left + rect.width, rect.top + rect.height), color);
+		mVertices.emplace_back(sf::Vector2f(rect.left, rect.top + rect.height), color);
+		mVertices.emplace_back(sf::Vector2f(rect.left, rect.top), color);
+		mVertices.emplace_back(sf::Vector2f(rect.left, rect.top), sf::Color::Transparent);
+		hitbox.mCollisionCount = 0;
 	}
-#endif // DDRAW
+	//#endif // DDRAW
 	auto globalBounds = eTransform.getTransform().transformRect(collisionComponent.getLocalBounds());
 	auto others = getScene()->getSystem<xy::QuadTree>().queryArea(globalBounds);
 
@@ -80,13 +84,11 @@ void CollisionSystem::narrowPhase()
 
 				sf::FloatRect intersection;
 				if (rectA.intersects(rectB, intersection)) {
-					sf::Vector2f centreA(rectA.left + (rectA.width / 2.f), rectA.top + (rectA.height / 2.f));
-					sf::Vector2f centreB(rectB.left + (rectB.width / 2.f), rectB.top + (rectB.height / 2.f));
-					sf::Vector2f normal = centreB - centreA;
+					sf::Vector2f normal = (txB.getPosition() - txB.getOrigin()) - (txA.getPosition() - txA.getOrigin());
 
 					Manifold manifold;
 					if (intersection.width < intersection.height) {
-						manifold.penetration = intersection.height;
+						manifold.penetration = intersection.width;
 						manifold.normal.x = (normal.x < 0) ? 1 : -1.f;
 					}
 					else {
@@ -115,17 +117,17 @@ bool CollisionSystem::passesFilter(xy::Entity a, xy::Entity b)
 	const auto collisionA = a.getComponent<CollisionComponent>();
 	const auto collisionB = b.getComponent<CollisionComponent>();
 
-	return ((collisionA.getCollisionCategoryBits() & collisionB.getCollisionCategoryBits()) != 0
-		&& (collisionA.getCollisionMaskBits() & collisionB.getCollisionMaskBits()) != 0);
+	bool pass = ((collisionA.mMaskBits & collisionB.mCategoryBits) && (collisionA.mCategoryBits & collisionB.mMaskBits));
+	return pass;
 }
-#ifdef DDRAW
+//#ifdef DDRAW
 void CollisionSystem::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
 	if (mDebugLines) {
 		target.draw(mVertices.data(), mVertices.size(), sf::PrimitiveType::LinesStrip, states);
 	}
 }
-#endif // DDRAW
+//#endif // DDRAW
 
 CollisionComponent::CollisionComponent()
 {

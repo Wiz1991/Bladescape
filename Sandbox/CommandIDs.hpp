@@ -4,5 +4,6 @@ namespace CommandID
 {
 	enum
 	{
+		Player = 0x1,
 	};
 }

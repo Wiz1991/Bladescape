@@ -1,43 +1,69 @@
 spritesheet player
 {
-    src="assets/images/gearboy/ninja.png"
+	src="assets/images/spritesheet.png"
+	
+	sprite player
+	{
+		bounds=0,0,32,32
+		
+		
+		animation run
+		{
+			frame=0,96,32,32
+			frame=32,96,32,32
+			frame=64,96,32,32
+			frame=96,96,32,32
+			frame=128,96,32,32
+			frame=160,96,32,32
+			frame=192,96,32,32
+			frame=224,96,32,32
+			frame=256,96,32,32
+			frame=288,96,32,32
+			frame=320,96,32,32
+			frame=352,96,32,32
+			
 
-    sprite player
-    {
-        bounds = 0,0,16,16
 
-        animation idle
-        {
-            frame = 0,0,16,16
-            frame = 16,0,16,16
+			loop=true
+			framerate=20
+		}
+		animation idle
+		{
+			frame=0,64,32,32
+			frame=32,64,32,32
+			frame=64,64,32,32
+			frame=96,64,32,32
+			frame=128,64,32,32
+			frame=160,64,32,32
+			frame=192,64,32,32
+			frame=224,64,32,32
+			frame=256,64,32,32
+			frame=288,64,32,32
+			frame=320,64,32,32
+			
+			
+			loop=true
+			framerate=20
+		
+		}
+		animation hit
+		{
+			frame=0,32,32,32
+			frame=32,32,32,32
+			frame=64,32,32,32
+			frame=96,32,32,32
+			frame=128,32,32,32
+			frame=160,32,32,32
+			frame=192,32,32,32
+			
+			
+			loop=true
+			framerate=20
+		}
+	
+	}
 
-            loop=true
-            framerate=12
-        }
 
-        animation run
-        {
-            frame = 32,0,16,16
-            frame = 48,0,16,16
-            frame = 64,0,16,16
 
-            loop=true
-            framerate=20
-        }
 
-        animation jump
-        {
-            frame = 80,0,16,16
-            loop=true
-            framerate=30
-        }
-
-        animation die
-        {
-            frame=96,0,16,16
-            frame=112,0,16,16
-            loop=true
-            framerate=12
-        }
-    }
 }

@@ -25,6 +25,7 @@
     <ClCompile Include="GameState.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MenuState.cpp" />
+    <ClCompile Include="PlayerController.cpp" />
     <ClCompile Include="PlayerSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -35,10 +36,13 @@
     <ClInclude Include="Game.hpp" />
     <ClInclude Include="GameConsts.h" />
     <ClInclude Include="GameState.hpp" />
+    <ClInclude Include="InputBinding.h" />
     <ClInclude Include="KeyMapping.h" />
     <ClInclude Include="MessageIDs.hpp" />
     <ClInclude Include="MenuState.hpp" />
+    <ClInclude Include="PlayerController.h" />
     <ClInclude Include="PlayerSystem.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="ResourceIDs.hpp" />
     <ClInclude Include="ShapeUtils.hpp" />
     <ClInclude Include="States.hpp" />

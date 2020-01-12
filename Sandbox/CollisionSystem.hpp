@@ -4,31 +4,38 @@
 #include <SFML/Graphics/Drawable.hpp>
 #include <vector>
 #include <set>
-
+#include <array>
 namespace CollisionType {
 	enum ID {
 		None = 0,
 		Player = 0x1,
 		Foot = 0x2,
-		Solid = 0x4,
-		Platform = 0x8,
+		RightHand = 0x4,
+		LeftHand = 0x8,
+		Solid = 0x16,
+		Platform = 0x32,
+		Head = 0x64
 	};
 };
 namespace CollisionFlags {
 	enum {
-		Solid = 0x1,
-		Player = 0x2,
-		Platform = 0x8,
+		None = 0,
+		Player = 0x1,
+		Foot = 0x2,
+		RightHand = 0x4,
+		LeftHand = 0x8,
+		Solid = 0x16,
+		Platform = 0x32,
+		Head = 0x64,
 
 		PlayerMask = Solid | Platform,
 	};
 }
 
-#define DDRAW
 class CollisionSystem final : public xy::System
-#ifdef  DDRAW
-	, sf::Drawable
-#endif //  DDRAW
+	//#ifdef  DDRAW
+	, public sf::Drawable
+	//#endif //  DDRAW
 {
 public:
 	CollisionSystem(xy::MessageBus&);
@@ -38,11 +45,11 @@ public:
 	void narrowPhase();
 
 	bool passesFilter(xy::Entity a, xy::Entity b);
-#ifdef DDRAW
+	//#ifdef DDRAW
 	bool mDebugLines;
 	std::vector<sf::Vertex> mVertices;
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
-#endif // DDRAW
+	//#endif // DDRAW
 private:
 	std::set<std::pair<xy::Entity, xy::Entity>> mCollisions;
 };
@@ -76,7 +83,7 @@ private:
 class CollisionComponent final {
 public:
 
-	static constexpr sf::Uint32 maxHitBoxes = 2;
+	static constexpr sf::Uint32 maxHitBoxes = 8;
 	CollisionComponent();
 
 	void addHitbox(sf::FloatRect rect, CollisionType::ID type);
