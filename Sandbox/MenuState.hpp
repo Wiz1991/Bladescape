@@ -5,7 +5,10 @@
 
 #include <SFML/Graphics/Font.hpp>
 
-class MenuState final : public xy::State
+#include <xyginext/gui/GuiClient.hpp>
+#include <xyginext/core/ConsoleClient.hpp>
+
+class MenuState final : public xy::State, public xy::ConsoleClient, public xy::GuiClient
 {
 public:
 	MenuState(xy::StateStack&, xy::State::Context);

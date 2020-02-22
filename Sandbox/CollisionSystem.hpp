@@ -7,8 +7,13 @@
 
 #include <vector>
 #include <set>
+
+#ifdef XY_DEBUG
 #define DDRAW
+#endif
+
 class CollisionSystem final :public xy::System
+
 #ifdef DDRAW
 	, public sf::Drawable
 #endif
@@ -22,6 +27,10 @@ public:
 	//entity to see if it collides. Entity must have collision
 	//component and quad tree component. Used in reconciliation.
 	void queryState(xy::Entity);
+
+#ifdef XY_DEBUG
+	void toggleDebugDraw() { m_drawDebug = !m_drawDebug; }
+#endif // XY_DEBUG
 
 private:
 
@@ -53,26 +62,9 @@ namespace CollisionFlags //used in broad phase culling
 	{
 		Solid = 0x1,
 		Platform = 0x2,
-		Teleport = 0x4,
-		Player = 0x8,
-		Bubble = 0x10,
-		NPC = 0x20,
-		Fruit = 0x40,
-		Powerup = 0x80,
-		Bonus = 0x100,
-		HardBounds = 0x200,
-		MagicHat = 0x400,
-		Crate = 0x800,
-		Explosion = 0x1000,
-		Dynamite = 0x2000,
+		Player = 0x4,
 
-		PlayerMask = Bubble | Platform | Solid | Teleport | NPC | Fruit | Powerup | Bonus | MagicHat | Crate | Explosion,
-		NPCMask = Solid | Player | Bubble | Platform | Teleport | Powerup | HardBounds | Crate | Explosion,
-		FruitMask = Solid | Platform | Player | Teleport,
-		PowerupMask = Platform | Solid | Player | NPC | Crate,
-		CrateMask = Platform | Solid | Player | NPC | Powerup | Teleport | Crate,
-		ExplosionMask = Player | NPC,
-		DynamiteMask = Solid | Platform | Teleport
+		PlayerMask = Platform | Solid,
 	};
 }
 namespace CollisionType
@@ -83,17 +75,6 @@ namespace CollisionType
 		Player = 0x1,
 		Foot = 0x2,
 		Solid = 0x4,
-		Teleport = 0x8,
-		NPC = 0x10,
-		Fruit = 0x20,
-		Powerup = 0x40,
-		Platform = 0x80,
-		Bubble = 0x100,
-		HardBounds = 0x200,
-		MagicHat = 0x400,
-		Crate = 0x800,
-		Explosion = 0x1000,
-		Dynamite = 0x2000
 	};
 };
 

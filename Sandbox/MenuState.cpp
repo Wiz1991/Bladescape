@@ -10,6 +10,7 @@
 #include <xyginext/ecs/systems/TextSystem.hpp>
 #include <xyginext/ecs/systems/RenderSystem.hpp>
 #include <xyginext/ecs/systems/UISystem.hpp>
+#include <xyginext/gui/Gui.hpp>
 
 MenuState::MenuState(xy::StateStack& ss, xy::State::Context ctx) :
 	xy::State(ss, ctx),

@@ -1,45 +1,56 @@
 #include "PlayerController.h"
 #include "PlayerSystem.h"
-#include "KeyMapping.h"
 
-PlayerController::PlayerController(const InputBinding& binds)
-	: mInputBinding(binds),
-	mCurrentInput(0)
-
+PlayerController::PlayerController(InputBinding& binds)
+	: mInputBinding(binds)
+	, mEnabled(true)
+	, mCurrentInput(0)
+	, mRunningMultipler(0)
 {
 }
 
 void PlayerController::handleEvent(const sf::Event& evt)
 {
-	if (evt.type == sf::Event::KeyPressed) {
-		if (evt.key.code == sf::Keyboard::A) {
-			mCurrentInput |= InputFlag::Left;
-		}
-		if (evt.key.code == sf::Keyboard::D) {
-			mCurrentInput |= InputFlag::Right;
-		}
-		if (evt.key.code == sf::Keyboard::W) {
+	if (evt.type == sf::Event::KeyPressed)
+	{
+		if (evt.key.code == mInputBinding.mKeyBinds[InputBinding::Action::Jump])
+		{
 			mCurrentInput |= InputFlag::Jump;
 		}
+
+		else if (evt.key.code == mInputBinding.mKeyBinds[InputBinding::Action::Left])
+		{
+			mCurrentInput |= InputFlag::Left;
+		}
+		else if (evt.key.code == mInputBinding.mKeyBinds[InputBinding::Action::Right])
+		{
+			mCurrentInput |= InputFlag::Right;
+		}
 	}
-	if (evt.type == sf::Event::KeyReleased) {
-		if (evt.key.code == sf::Keyboard::A) {
+	else if (evt.type == sf::Event::KeyReleased)
+	{
+		if (evt.key.code == mInputBinding.mKeyBinds[InputBinding::Action::Jump])
+		{
+			mCurrentInput &= ~InputFlag::Jump;
+		}
+		else if (evt.key.code == mInputBinding.mKeyBinds[InputBinding::Action::Left])
+		{
 			mCurrentInput &= ~InputFlag::Left;
 		}
-		if (evt.key.code == sf::Keyboard::D) {
+		else if (evt.key.code == mInputBinding.mKeyBinds[InputBinding::Action::Right])
+		{
 			mCurrentInput &= ~InputFlag::Right;
-		}
-		if (evt.key.code == sf::Keyboard::W) {
-			mCurrentInput &= ~InputFlag::Jump;
 		}
 	}
 }
 
 void PlayerController::update()
 {
-	if (mPlayer.isValid()) {
-		auto& player = mPlayer.getComponent<Player>();
-
+	if (!mEnabled) {
+		mCurrentInput = 0;
+	}
+	if (playerEntity.isValid()) {
+		auto& player = playerEntity.getComponent<Player>();
 		player.mInput = mCurrentInput;
 	}
 }

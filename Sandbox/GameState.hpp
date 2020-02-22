@@ -12,7 +12,16 @@
 #include "ResourceIDs.hpp"
 #include <xyginext/resources/Resource.hpp>
 
-class GameState final : public xy::State
+#include <xyginext/core/ConsoleClient.hpp>
+#ifdef XY_DEBUG
+#include <xyginext/gui/GuiClient.hpp>
+#endif // XY_DEBUG
+
+class GameState final : public xy::State, public xy::ConsoleClient
+#ifdef XY_DEBUG
+	, xy::GuiClient
+#endif // XY_DEBUG
+
 {
 public:
 	GameState(xy::StateStack&, xy::State::Context);
@@ -41,4 +50,5 @@ private:
 	std::array<xy::Sprite, SpriteID::Count> mSprites;
 	AnimationMap<AnimID::Player::Count> mPlayerAnimations;
 	xy::TextureResource mTextureResource;
+	InputBinding mInputBindings;
 };

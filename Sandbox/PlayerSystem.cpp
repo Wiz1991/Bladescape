@@ -8,12 +8,11 @@
 #include "AnimationMap.h"
 namespace
 {
-	const float speed = 130.f;
-	const float initialJumpVelocity = 590.f;
-	const float minJumpVelocity = -initialJumpVelocity * 0.2f;
+	const float initialJumpVelocity = 1250.f;
+	const float minJumpVelocity = -initialJumpVelocity * 0.35;
 
-	static constexpr float Gravity = 2200.f;
-	static constexpr float MaxVelocity = 900.f;
+	static constexpr float Gravity = 3200.f;
+	static constexpr float MaxVelocity = 1800.f;
 }
 PlayerSystem::PlayerSystem(xy::MessageBus& bus) :
 	xy::System(bus, typeid(PlayerSystem))
@@ -42,10 +41,6 @@ void PlayerSystem::process(float dt)
 				player.state = Player::State::Jumping;
 				player.velocity.y = -initialJumpVelocity;
 				player.flags &= ~player.JumpFlag;
-				entity.getComponent<xy::SpriteAnimation>().play(AnimID::Player::Jump);
-			}
-			else {
-				entity.getComponent<xy::SpriteAnimation>().play(AnimID::Player::Run);
 			}
 		}
 		else if (player.state == Player::State::Jumping)
@@ -60,14 +55,17 @@ void PlayerSystem::process(float dt)
 			tx.move({ 0.f, player.velocity.y * dt });
 			player.velocity.y += Gravity * dt;
 			player.velocity.y = std::min(player.velocity.y, MaxVelocity);
-
-			entity.getComponent<xy::SpriteAnimation>().play(AnimID::Player::Jump);
 		}
-		if (player.state == Player::State::Walking || player.state == Player::State::Jumping)
+		if (player.state == Player::State::Walking)
 		{
 			auto motion = parseInput(player.mInput);
-			tx.move(speed * motion * dt);
-			player.velocity.x = speed * motion.x;
+			tx.move(player.speed * motion * dt);
+			player.velocity.x = player.speed * motion.x;
+		}
+		if (player.state == Player::State::Jumping) {
+			auto motion = parseInput(player.mInput);
+			tx.move(player.airSpeed * motion * dt);
+			player.velocity.x = player.speed * motion.x;
 		}
 		player.mPrevInput = player.mInput;
 	}
@@ -127,11 +125,7 @@ void PlayerSystem::collisionWalking(xy::Entity entity)
 				default: break;
 
 				case CollisionType::Solid:
-				case CollisionType::Platform:
 					tx.move(man.normal * man.penetration);
-					break;
-				case CollisionType::Crate:
-					tx.move(man.normal * man.penetration / 2.f);
 					break;
 				}
 			}
@@ -199,9 +193,6 @@ void PlayerSystem::collisionJumping(xy::Entity entity)
 			for (auto j = 0u; j < collisionCount; ++j)
 			{
 				auto man = manifolds[j];
-				if (man.otherType == CollisionType::Platform)
-				{
-				}
 			}
 		}
 	}

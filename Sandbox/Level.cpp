@@ -3,7 +3,7 @@
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Rect.hpp>
-
+#include "GameConsts.h"
 Level::Level(std::string mapPath)
 {
 	loadMap(mapPath);
@@ -77,12 +77,19 @@ bool Level::loadMap(std::string& mapPath)
 				{
 					return { rect.left, rect.top, rect.width, rect.height };
 				};
+				auto toVector2f = [](tmx::Vector2f vector)->sf::Vector2f
+				{
+					return { vector.x,vector.y };
+				};
 				const auto& objects = layer->getLayerAs<tmx::ObjectGroup>().getObjects();
 				for (const auto& object : objects) {
 					if (object.getType() == "solid") {
 						CollisionData data;
 						data.bounds = toFloatRect(object.getAABB());
 						mCollisionData.emplace_back(data);
+					}
+					if (object.getType() == "spawnpoint") {
+						mSpawnPoint = toVector2f(object.getPosition());
 					}
 				}
 			}
@@ -96,8 +103,10 @@ bool Level::loadMap(std::string& mapPath)
 
 void Level::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
+	auto scale = GameConsts::PixelsPerTile / mTileSize;
 	sf::Sprite map(mDrawTexture.getTexture());
 	map.setPosition(0, 0);
+	map.setScale(scale, scale);
 	target.draw(map, states);
 
 	//draw the vector

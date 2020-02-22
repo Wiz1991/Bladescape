@@ -18,6 +18,9 @@ struct Player final {
 	sf::Vector2f velocity;
 	sf::Uint8 canLand;
 	sf::Uint8 flags;
+
+	float speed = 300.f;
+	float airSpeed = 432.f;
 };
 class PlayerSystem final : public xy::System
 {

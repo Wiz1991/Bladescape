@@ -36,11 +36,13 @@
 #include <SFML/Graphics/Font.hpp>
 #include "InputBinding.h"
 
+#include <xyginext/gui/Gui.hpp>
+
 GameState::GameState(xy::StateStack& ss, xy::State::Context ctx)
 	: xy::State(ss, ctx),
 	mGameScene(ctx.appInstance.getMessageBus()),
 	mLevel("assets/maps/map1.tmx"),
-	mPlayerController(InputBinding())
+	mPlayerController(mInputBindings)
 {
 	initScene();
 	loadResources();
@@ -50,10 +52,25 @@ GameState::GameState(xy::StateStack& ss, xy::State::Context ctx)
 	mGameScene.getActiveCamera().getComponent<xy::Camera>().setViewport(ctx.defaultView.getViewport());
 
 	ctx.appInstance.setMouseCursorVisible(true);
+
+#ifdef XY_DEBUG
+	registerCommand("DDRAW", [&](const std::string& params) {
+		mGameScene.getSystem<CollisionSystem>().toggleDebugDraw();
+		});
+	registerConsoleTab("Variables", [&]() {
+		xy::Nim::slider("Player Speed", player.getComponent<Player>().speed, 100, 700);
+		xy::Nim::slider("Player Airborn speed", player.getComponent<Player>().airSpeed, 200, 800);
+		});
+
+#endif
 }
 
 bool GameState::handleEvent(const sf::Event& evt)
 {
+	if (xy::Nim::wantsKeyboard() || xy::Nim::wantsMouse()) {
+		return true;
+	}
+
 	mGameScene.forwardEvent(evt);
 	mPlayerController.handleEvent(evt);
 	return true;
@@ -95,28 +112,33 @@ void GameState::buildWorld()
 
 	static const sf::FloatRect PlayerBounds = ClocksyBounds;
 	static const sf::FloatRect PlayerFoot = ClocksyFoot;
-	static const sf::Vector2f PlayerOrigin(8, 16);
+	static const sf::Vector2f PlayerOrigin(8, 8);
 
 	auto entity = mGameScene.createEntity();
 	entity.addComponent<xy::Sprite>() = mSprites[SpriteID::Player];
-	entity.addComponent<xy::SpriteAnimation>().play(AnimID::Player::Idle);
+	entity.addComponent<xy::SpriteAnimation>().play(0);
 	entity.addComponent<xy::Drawable>();
 
-	entity.addComponent<xy::Camera>();
-	entity.addComponent<xy::Transform>().setPosition(40, 304);
-	entity.addComponent<CollisionComponent>().addHitbox(PlayerBounds, CollisionType::Player);
-	entity.getComponent<CollisionComponent>().addHitbox(PlayerFoot, CollisionType::Foot);
+	auto bounds = entity.getComponent<xy::Sprite>().getTextureBounds();
+
+	entity.addComponent<xy::Transform>().setPosition(mLevel.getSpawnPoint() * scale);
+	entity.getComponent<xy::Transform>().setOrigin(PlayerOrigin);
+	entity.getComponent<xy::Transform>().setScale(scale, scale);
+
+	entity.addComponent<CollisionComponent>().addHitbox(bounds, CollisionType::Player);
+	entity.getComponent<CollisionComponent>().addHitbox({ 1,bounds.height,bounds.width - 2,1 }, CollisionType::Foot);
 	entity.getComponent<CollisionComponent>().setCollisionCategoryBits(CollisionFlags::Player);
 	entity.getComponent<CollisionComponent>().setCollisionMaskBits(CollisionFlags::PlayerMask);
 	entity.addComponent<xy::BroadphaseComponent>().setArea(entity.getComponent<xy::Drawable>().getLocalBounds());
+
 	entity.addComponent<Player>();
-	mPlayerController.setPlayerEntity(entity);
+
+	entity.addComponent<xy::Camera>();
 	player = entity;
+	mPlayerController.setPlayerEntity(entity);
 
 	mGameScene.getActiveCamera().addComponent<CameraTarget>().target = entity;
-	//mGameScene.getActiveCamera().getComponent<xy::Camera>().setZoom(scale);
-	mGameScene.getActiveCamera().getComponent<xy::Camera>().setBounds(sf::FloatRect(sf::Vector2f(), mLevel.getWorldSize()));
-	mGameScene.getSystem<CameraTargetSystem>().setBounds({ sf::Vector2f(),mLevel.getWorldSize() });
+	mGameScene.getSystem<CameraTargetSystem>().setBounds({ sf::Vector2f(),mLevel.getWorldSize() * scale });
 }
 
 void GameState::loadResources()
@@ -145,12 +167,15 @@ void GameState::initScene()
 
 void GameState::loadCollisions()
 {
+	auto scale = GameConsts::PixelsPerTile / mLevel.getTileSize();
 	auto& collisions = mLevel.getCollisionData();
 	for (auto& col : collisions) {
 		auto entity = mGameScene.createEntity();
-		entity.addComponent<xy::Transform>().setPosition(col.bounds.left, col.bounds.top);
+		entity.addComponent<xy::Transform>().setPosition(col.bounds.left * scale, col.bounds.top * scale);
 		col.bounds.left = 0.f; //reset to local transform
 		col.bounds.top = 0.f;
+		col.bounds.width *= scale;
+		col.bounds.height *= scale;
 		entity.addComponent<CollisionComponent>().addHitbox(sf::FloatRect(col.bounds.left, col.bounds.top, col.bounds.width, col.bounds.height), CollisionType::Solid);
 		entity.addComponent<xy::BroadphaseComponent>().setArea(col.bounds);
 	}

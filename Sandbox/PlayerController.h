@@ -1,18 +1,21 @@
 #pragma once
-#include <xyginext/ecs/Entity.hpp>
 #include <SFML/Window/Event.hpp>
+#include <xyginext/ecs/Entity.hpp>
 #include "InputBinding.h"
+
 class PlayerController final
 {
 public:
-	PlayerController(const InputBinding&);
-	void handleEvent(const sf::Event&);
+	PlayerController(InputBinding& binds);
+	void handleEvent(const sf::Event& evt);
 	void update();
-	void setPlayerEntity(xy::Entity p) { mPlayer = p; }
-	xy::Entity getPlayerEntity()const { return mPlayer; }
-
+	void setPlayerEntity(xy::Entity ent) { playerEntity = ent; }
+	xy::Entity getPlayerEntity() const { return playerEntity; }
+	void setEnabled(bool flag) { mEnabled = flag; }
 private:
-	xy::Entity mPlayer;
-	const InputBinding& mInputBinding;
-	std::uint16_t mCurrentInput;
+	InputBinding& mInputBinding;
+	xy::Entity playerEntity;
+	sf::Uint32 mCurrentInput;
+	float mRunningMultipler;
+	bool mEnabled;
 };

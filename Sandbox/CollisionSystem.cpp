@@ -10,7 +10,7 @@
 CollisionSystem::CollisionSystem(xy::MessageBus& mb, bool server)
 	: xy::System(mb, typeid(CollisionSystem))
 #ifdef DDRAW
-	, m_drawDebug(true)
+	, m_drawDebug(false)
 #endif
 {
 	requireComponent<CollisionComponent>();
