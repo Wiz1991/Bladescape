@@ -8,11 +8,11 @@
 #include "AnimationMap.h"
 namespace
 {
-	const float initialJumpVelocity = 1250.f;
-	const float minJumpVelocity = -initialJumpVelocity * 0.35;
+	const float initialJumpVelocity = 1060.f;
+	const float minJumpVelocity = -initialJumpVelocity * 0.39;
 
-	static constexpr float Gravity = 3200.f;
-	static constexpr float MaxVelocity = 1800.f;
+	static constexpr float Gravity = 2300.f;
+	static constexpr float MaxVelocity = 1000.f;
 }
 PlayerSystem::PlayerSystem(xy::MessageBus& bus) :
 	xy::System(bus, typeid(PlayerSystem))
@@ -67,6 +67,26 @@ void PlayerSystem::process(float dt)
 			tx.move(player.airSpeed * motion * dt);
 			player.velocity.x = player.speed * motion.x;
 		}
+
+		if (player.state == Player::State::Jumping) {
+			entity.getComponent<xy::SpriteAnimation>().play(AnimID::Player::Jump);
+		}
+		else if (player.state == Player::State::Walking) {
+			entity.getComponent<xy::SpriteAnimation>().play(AnimID::Player::Run);
+			auto scale = tx.getScale();
+			if (player.velocity.x > 0) {
+				scale.x = scale.y;
+			}
+			else if (player.velocity.x < 0) {
+				scale.x = -scale.y;
+			}
+			else {
+				entity.getComponent<xy::SpriteAnimation>().play(AnimID::Player::Idle);
+			}
+
+			tx.setScale(scale);
+		}
+
 		player.mPrevInput = player.mInput;
 	}
 }
@@ -178,8 +198,9 @@ void PlayerSystem::collisionJumping(xy::Entity entity)
 					}
 					else if (man.normal.y > 0) //bonk head and fall
 					{
-						player.velocity = -player.velocity * 0.25f;
+						player.velocity = -player.velocity * 0.1f;
 					}
+
 					tx.move(man.normal * man.penetration);
 					break;
 				}

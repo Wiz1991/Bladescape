@@ -22,7 +22,7 @@ spritesheet player
             frame = 64,0,16,16
 
             loop=true
-            framerate=8
+            framerate=9
         }
 
         animation jump

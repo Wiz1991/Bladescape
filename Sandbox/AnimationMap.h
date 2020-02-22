@@ -9,7 +9,7 @@ namespace AnimID
 	{
 		enum
 		{
-			Idle, Jump, Run, Die,
+			Idle, Run, Jump, Die,
 
 			Count
 		};

@@ -30,6 +30,7 @@
 
 #include <xyginext/core/App.hpp>
 #include <xyginext/util/Vector.hpp>
+#include <xyginext/util/Rectangle.hpp>
 #include <xyginext/graphics/SpriteSheet.hpp>
 
 #include <SFML/Window/Event.hpp>
@@ -112,24 +113,29 @@ void GameState::buildWorld()
 
 	static const sf::FloatRect PlayerBounds = ClocksyBounds;
 	static const sf::FloatRect PlayerFoot = ClocksyFoot;
-	static const sf::Vector2f PlayerOrigin(8, 8);
+	static const sf::Vector2f PlayerOrigin(8, 16);
 
 	auto entity = mGameScene.createEntity();
 	entity.addComponent<xy::Sprite>() = mSprites[SpriteID::Player];
 	entity.addComponent<xy::SpriteAnimation>().play(0);
 	entity.addComponent<xy::Drawable>();
 
-	auto bounds = entity.getComponent<xy::Sprite>().getTextureBounds();
+	sf::FloatRect bounds = entity.getComponent<xy::Sprite>().getTextureBounds();
+	bounds.width -= 2;
 
+	sf::FloatRect foot = { 0,bounds.height,bounds.width ,1 };
 	entity.addComponent<xy::Transform>().setPosition(mLevel.getSpawnPoint() * scale);
 	entity.getComponent<xy::Transform>().setOrigin(PlayerOrigin);
 	entity.getComponent<xy::Transform>().setScale(scale, scale);
 
 	entity.addComponent<CollisionComponent>().addHitbox(bounds, CollisionType::Player);
-	entity.getComponent<CollisionComponent>().addHitbox({ 1,bounds.height,bounds.width - 2,1 }, CollisionType::Foot);
+	entity.getComponent<CollisionComponent>().addHitbox({ 0.5f,bounds.height,bounds.width - 1.5f,1 }, CollisionType::Foot);
 	entity.getComponent<CollisionComponent>().setCollisionCategoryBits(CollisionFlags::Player);
 	entity.getComponent<CollisionComponent>().setCollisionMaskBits(CollisionFlags::PlayerMask);
-	entity.addComponent<xy::BroadphaseComponent>().setArea(entity.getComponent<xy::Drawable>().getLocalBounds());
+
+	//bounds = xy::Util::Rectangle::combine(bounds, foot);
+
+	entity.addComponent<xy::BroadphaseComponent>().setArea(bounds);
 
 	entity.addComponent<Player>();
 
