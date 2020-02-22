@@ -8,6 +8,7 @@ namespace SpriteID
 {
 	enum
 	{
+		Player,
 		Count
 	};
 

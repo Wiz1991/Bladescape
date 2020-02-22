@@ -19,16 +19,19 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CameraTargetSystem.cpp" />
     <ClCompile Include="CollisionSystem.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameState.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="MapLoader.cpp" />
+    <ClCompile Include="Level.cpp" />
     <ClCompile Include="MenuState.cpp" />
     <ClCompile Include="PlayerController.cpp" />
     <ClCompile Include="PlayerSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AnimationMap.h" />
+    <ClInclude Include="CameraTargetSystem.h" />
     <ClInclude Include="CollisionSystem.hpp" />
     <ClInclude Include="CommandIDs.hpp" />
     <ClInclude Include="Game.hpp" />
@@ -36,7 +39,7 @@
     <ClInclude Include="GameState.hpp" />
     <ClInclude Include="InputBinding.h" />
     <ClInclude Include="KeyMapping.h" />
-    <ClInclude Include="MapLoader.h" />
+    <ClInclude Include="Level.h" />
     <ClInclude Include="MessageIDs.hpp" />
     <ClInclude Include="MenuState.hpp" />
     <ClInclude Include="PlayerController.h" />

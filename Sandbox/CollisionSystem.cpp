@@ -8,8 +8,7 @@
 #include "CollisionSystem.hpp"
 
 CollisionSystem::CollisionSystem(xy::MessageBus& mb, bool server)
-	: xy::System(mb, typeid(CollisionSystem)),
-	m_isServer(server)
+	: xy::System(mb, typeid(CollisionSystem))
 #ifdef DDRAW
 	, m_drawDebug(true)
 #endif

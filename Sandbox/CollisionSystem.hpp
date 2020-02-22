@@ -32,8 +32,6 @@ private:
 	bool passesFilter(xy::Entity, xy::Entity);
 	std::set<std::pair<xy::Entity, xy::Entity>> m_collisions;
 
-	bool m_isServer;
-
 #ifdef DDRAW
 	bool m_drawDebug;
 	std::vector<sf::Vertex> m_vertices;

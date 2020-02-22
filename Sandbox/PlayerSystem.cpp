@@ -4,6 +4,8 @@
 #include "StringUtils.h"
 #include <xyginext/ecs/Scene.hpp>
 #include "InputBinding.h"
+#include <xyginext/ecs/components/SpriteAnimation.hpp>
+#include "AnimationMap.h"
 namespace
 {
 	const float speed = 130.f;
@@ -40,6 +42,10 @@ void PlayerSystem::process(float dt)
 				player.state = Player::State::Jumping;
 				player.velocity.y = -initialJumpVelocity;
 				player.flags &= ~player.JumpFlag;
+				entity.getComponent<xy::SpriteAnimation>().play(AnimID::Player::Jump);
+			}
+			else {
+				entity.getComponent<xy::SpriteAnimation>().play(AnimID::Player::Run);
 			}
 		}
 		else if (player.state == Player::State::Jumping)
@@ -54,6 +60,8 @@ void PlayerSystem::process(float dt)
 			tx.move({ 0.f, player.velocity.y * dt });
 			player.velocity.y += Gravity * dt;
 			player.velocity.y = std::min(player.velocity.y, MaxVelocity);
+
+			entity.getComponent<xy::SpriteAnimation>().play(AnimID::Player::Jump);
 		}
 		if (player.state == Player::State::Walking || player.state == Player::State::Jumping)
 		{
