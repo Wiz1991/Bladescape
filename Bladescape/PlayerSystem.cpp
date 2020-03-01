@@ -70,6 +70,14 @@ void PlayerSystem::process(float dt)
 
 		if (player.state == Player::State::Jumping) {
 			entity.getComponent<xy::SpriteAnimation>().play(AnimID::Player::Jump);
+			auto scale = tx.getScale();
+			if (player.velocity.x > 0) {
+				scale.x = scale.y;
+			}
+			else if (player.velocity.x < 0) {
+				scale.x = -scale.y;
+			}
+			tx.setScale(scale);
 		}
 		else if (player.state == Player::State::Walking) {
 			entity.getComponent<xy::SpriteAnimation>().play(AnimID::Player::Run);

@@ -39,6 +39,8 @@
 
 #include <xyginext/gui/Gui.hpp>
 
+
+
 GameState::GameState(xy::StateStack& ss, xy::State::Context ctx)
 	: xy::State(ss, ctx),
 	mGameScene(ctx.appInstance.getMessageBus()),
@@ -64,6 +66,7 @@ GameState::GameState(xy::StateStack& ss, xy::State::Context ctx)
 		});
 
 #endif
+
 }
 
 bool GameState::handleEvent(const sf::Event& evt)
@@ -93,7 +96,7 @@ bool GameState::update(float dt)
 void GameState::draw()
 {
 	auto rw = getContext().appInstance.getRenderWindow();
-	rw->draw(mLevel);
+
 	rw->draw(mGameScene);
 }
 
@@ -145,6 +148,17 @@ void GameState::buildWorld()
 
 	mGameScene.getActiveCamera().addComponent<CameraTarget>().target = entity;
 	mGameScene.getSystem<CameraTargetSystem>().setBounds({ sf::Vector2f(),mLevel.getWorldSize() * scale });
+
+	auto& layers = mLevel.getRenderLayers();
+	std::int32_t depth = -50;
+	for (auto& layer : layers) {
+		auto entity = mGameScene.createEntity();
+		entity.addComponent<xy::Drawable>().setDepth(depth++);
+		entity.addComponent<xy::Sprite>(layer->getTexture());
+		entity.addComponent<xy::Transform>().setOrigin(0, 0);
+		entity.getComponent<xy::Transform>().setScale(scale, scale);
+	}
+
 }
 
 void GameState::loadResources()

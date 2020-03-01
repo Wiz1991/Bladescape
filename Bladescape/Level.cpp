@@ -12,14 +12,22 @@ Level::Level(std::string mapPath)
 bool Level::loadMap(std::string& mapPath)
 {
 	tmx::Map map;
-	mDrawTexture.clear();
 	if (map.load(mapPath)) {
 		float scale = 64 / 16;
-		mDrawTexture.create(map.getTileCount().x * map.getTileSize().x * scale, map.getTileCount().y * map.getTileSize().y * scale);
+		
 		std::vector<std::unique_ptr<sf::Texture>> textures;
 		const auto& layers = map.getLayers();
 		for (const auto& layer : layers) {
+			//create a new layer for drawing the tiles on
+			auto renderLayer = std::make_unique<sf::RenderTexture>();
+
+			renderLayer->create(map.getTileCount().x * map.getTileSize().x,
+								map.getTileCount().y * map.getTileSize().y);
+
+
 			if (layer->getType() == tmx::Layer::Type::Tile) {
+
+				//supports usage of only one tileset
 				const auto& tileSets = map.getTilesets();
 				for (const auto& tileset : tileSets) {
 					//read textures and store
@@ -66,11 +74,12 @@ bool Level::loadMap(std::string& mapPath)
 						drawSprite.setTexture(*textures[0]);
 						drawSprite.setTextureRect(drawRect);
 
-						mDrawTexture.draw(drawSprite);
+						renderLayer->draw(drawSprite);
 					}
 				}
 
-				mDrawTexture.display();
+				renderLayer->display();
+				mLayers.push_back(std::move(renderLayer));
 			}
 			else if (layer->getType() == tmx::Layer::Type::Object) {
 				auto toFloatRect = [](tmx::FloatRect rect)->sf::FloatRect
@@ -101,14 +110,3 @@ bool Level::loadMap(std::string& mapPath)
 	}
 }
 
-void Level::draw(sf::RenderTarget& target, sf::RenderStates states) const
-{
-	auto scale = GameConsts::PixelsPerTile / mTileSize;
-	sf::Sprite map(mDrawTexture.getTexture());
-	map.setPosition(0, 0);
-	map.setScale(scale, scale);
-	target.draw(map, states);
-
-	//draw the vector
-	//each layer should be equal to a tile layer in
-}

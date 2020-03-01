@@ -1,6 +1,6 @@
 #pragma once
 #include <SFML/System/Vector2.hpp>
-#include <SFML/Graphics/Drawable.hpp>
+
 #include <SFML/Graphics/RenderTexture.hpp>
 #include <tmxlite/Map.hpp>
 #include <tmxlite/Layer.hpp>
@@ -23,7 +23,7 @@ struct EnemyData {
 	Path enemyPath;
 };
 
-class Level : public sf::Drawable
+class Level 
 {
 public:
 	Level(std::string mapPath);
@@ -33,8 +33,9 @@ public:
 	const sf::Vector2f getSpawnPoint() const { return mSpawnPoint; }
 	const float getTileSize() const { return mTileSize; }
 	sf::Vector2f getWorldSize() { return mWorldSize; }
-private:
-	void draw(sf::RenderTarget& target, sf::RenderStates) const override;
+	std::vector<std::unique_ptr<sf::RenderTexture>>& getRenderLayers() { return  mLayers; }
+
+	
 
 private:
 	sf::FloatRect mLevelBounds{};
@@ -43,6 +44,6 @@ private:
 	std::vector<EnemyData> mEnemyData;
 	std::vector<CollisionData> mCollisionData;
 	sf::Vector2f mSpawnPoint;
-	sf::RenderTexture mDrawTexture;
-	sf::Texture mMapTexture;
+	std::vector<std::unique_ptr<sf::RenderTexture>> mLayers;
+	
 };
